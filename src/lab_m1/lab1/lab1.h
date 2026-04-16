@@ -28,6 +28,9 @@ namespace m1
         void OnWindowResize(int width, int height) override;
 
         // TODO(student): Class variables go here
-
+        glm::vec3 clear_color;
+        std::vector<std::string> mesh_choices;
+        size_t mesh_index;
+        glm::vec3 mesh_pos;
     };
 }   // namespace m1
