@@ -43,7 +43,7 @@ void SimpleScene::InitResources()
     camera = new Camera();
     camera->SetPerspective(60, window->props.aspectRatio, 0.01f, 200);
     camera->m_transform->SetMoveSpeed(2);
-    camera->m_transform->SetWorldPosition(glm::vec3(0, 1.6f, 2.5));
+    camera->m_transform->SetWorldPosition(glm::vec3(0, 1.6f, 0));
     camera->m_transform->SetWorldRotation(glm::vec3(-15, 0, 0));
     camera->Update();
 
@@ -141,7 +141,7 @@ void SimpleScene::DrawCoordinateSystem(const glm::mat4 & viewMatrix, const glm::
         if (drawGroundPlane)
         {
             objectModel->SetScale(glm::vec3(1));
-            objectModel->SetWorldPosition(glm::vec3(0));
+            objectModel->SetWorldPosition(glm::vec3(-1.5f, 0.5f, 0.0f));
             glUniformMatrix4fv(shader->loc_model_matrix, 1, GL_FALSE, glm::value_ptr(objectModel->GetModel()));
             glUniform3f(shader->GetUniformLocation("color"), 0.5f, 0.5f, 0.5f);
             xozPlane->Render();
@@ -151,16 +151,19 @@ void SimpleScene::DrawCoordinateSystem(const glm::mat4 & viewMatrix, const glm::
 
         glLineWidth(3);
         objectModel->SetScale(glm::vec3(1, 25, 1));
+        // Oy
         objectModel->SetWorldRotation(glm::quat());
         glUniformMatrix4fv(shader->loc_model_matrix, 1, GL_FALSE, glm::value_ptr(objectModel->GetModel()));
         glUniform3f(shader->GetUniformLocation("color"), 0, 1, 0);
         simpleLine->Render();
 
+        // Ox
         objectModel->SetWorldRotation(glm::vec3(0, 0, -90));
         glUniformMatrix4fv(shader->loc_model_matrix, 1, GL_FALSE, glm::value_ptr(objectModel->GetModel()));
         glUniform3f(shader->GetUniformLocation("color"), 1, 0, 0);
         simpleLine->Render();
 
+        // Oz
         objectModel->SetWorldRotation(glm::vec3(90, 0, 0));
         glUniformMatrix4fv(shader->loc_model_matrix, 1, GL_FALSE, glm::value_ptr(objectModel->GetModel()));
         glUniform3f(shader->GetUniformLocation("color"), 0, 0, 1);
