@@ -141,7 +141,7 @@ void SimpleScene::DrawCoordinateSystem(const glm::mat4 & viewMatrix, const glm::
         if (drawGroundPlane)
         {
             objectModel->SetScale(glm::vec3(1));
-            objectModel->SetWorldPosition(glm::vec3(-1.5f, 0.5f, 0.0f));
+            objectModel->SetWorldPosition(glm::vec3(0));
             glUniformMatrix4fv(shader->loc_model_matrix, 1, GL_FALSE, glm::value_ptr(objectModel->GetModel()));
             glUniform3f(shader->GetUniformLocation("color"), 0.5f, 0.5f, 0.5f);
             xozPlane->Render();
