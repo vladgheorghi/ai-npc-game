@@ -50,7 +50,7 @@ void Lab4::Init()
     angularStepOZ = 0;
 
     // Sets the resolution of the small viewport
-    glm::ivec2 resolution = window->GetResolution();
+    glm::ivec2 resolution = window->GetResolution(true);
     miniViewportArea = ViewportArea(50, 50, resolution.x / 5.f, resolution.y / 5.f);
 }
 
@@ -65,17 +65,42 @@ void Lab4::RenderScene() {
     modelMatrix = glm::mat4(1);
     modelMatrix *= transform3D::Translate(-2.5f, 0.5f, -1.5f);
     modelMatrix *= transform3D::Translate(translateX, translateY, translateZ);
+    if (translateY > 3.0f)
+    {
+        translateY = 0.0f;
+    }
+    else
+    {
+        translateY += 0.01f;
+    }
     RenderMesh(meshes["box"], shaders["VertexNormal"], modelMatrix);
 
     modelMatrix = glm::mat4(1);
     modelMatrix *= transform3D::Translate(0.0f, 0.5f, -1.5f);
     modelMatrix *= transform3D::Scale(scaleX, scaleY, scaleZ);
+    if (scaleX > 3.0f)
+    {
+        scaleX = 1.0f;
+    }
+    else
+    {
+        scaleX += 0.01f;
+    }
     RenderMesh(meshes["box"], shaders["Simple"], modelMatrix);
 
     modelMatrix = glm::mat4(1);
     modelMatrix *= transform3D::Translate(2.5f, 0.5f, -1.5f);
     modelMatrix *= transform3D::RotateOX(angularStepOX);
+    modelMatrix *= transform3D::Translate(-2.5f, -0.5f, 1.5f);
+    if (angularStepOY > 2 * M_PI)
+    {
+        angularStepOY = 0.0f;
+    } else
+    {
+        angularStepOY += 0.01f;
+    }
     modelMatrix *= transform3D::RotateOY(angularStepOY);
+    modelMatrix *= transform3D::Translate(2.5f, 0.5f, -1.5f);
     modelMatrix *= transform3D::RotateOZ(angularStepOZ);
     RenderMesh(meshes["box"], shaders["VertexNormal"], modelMatrix);
 }
@@ -87,7 +112,7 @@ void Lab4::Update(float deltaTimeSeconds)
     glPolygonMode(GL_FRONT_AND_BACK, polygonMode);
 
     // Sets the screen area where to draw
-    glm::ivec2 resolution = window->GetResolution();
+    glm::ivec2 resolution = window->GetResolution(true);
     glViewport(0, 0, resolution.x, resolution.y);
 
     RenderScene();
@@ -102,6 +127,7 @@ void Lab4::Update(float deltaTimeSeconds)
 
 void Lab4::FrameEnd()
 {
+    
 }
 
 
