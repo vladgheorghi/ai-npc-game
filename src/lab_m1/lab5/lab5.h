@@ -36,6 +36,8 @@ namespace m1
         bool renderCameraTarget;
 
         // TODO(student): If you need any other class variables, define them here.
-
+        float initialFov;
+        float changeFov;
+        float zoom;
     };
 }   // namespace m1

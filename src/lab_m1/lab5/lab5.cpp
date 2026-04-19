@@ -45,7 +45,11 @@ void Lab5::Init()
 
     // TODO(student): After you implement the changing of the projection
     // parameters, remove hardcodings of these parameters
-    projectionMatrix = glm::perspective(RADIANS(60), window->props.aspectRatio, 0.01f, 200.0f);
+    zoom = 10.0f;
+    initialFov = 60;
+    changeFov = 30;
+
+    projectionMatrix = glm::perspective(RADIANS(initialFov), window->props.aspectRatio, 0.01f, 200.0f);
 
 }
 
@@ -56,7 +60,7 @@ void Lab5::FrameStart()
     glClearColor(0, 0, 0, 1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    glm::ivec2 resolution = window->GetResolution();
+    glm::ivec2 resolution = window->GetResolution(true);
     // Sets the screen area where to draw
     glViewport(0, 0, resolution.x, resolution.y);
 }
@@ -139,32 +143,40 @@ void Lab5::OnInputUpdate(float deltaTime, int mods)
 
         if (window->KeyHold(GLFW_KEY_W)) {
             // TODO(student): Translate the camera forward
-
+            camera->TranslateForward(deltaTime * cameraSpeed);
         }
 
         if (window->KeyHold(GLFW_KEY_A)) {
             // TODO(student): Translate the camera to the left
-
+            camera->TranslateRight(-deltaTime * cameraSpeed);
         }
 
         if (window->KeyHold(GLFW_KEY_S)) {
             // TODO(student): Translate the camera backward
-
+            camera->TranslateForward(-deltaTime * cameraSpeed);
         }
 
         if (window->KeyHold(GLFW_KEY_D)) {
             // TODO(student): Translate the camera to the right
-
+            camera->TranslateRight(deltaTime * cameraSpeed);
         }
 
         if (window->KeyHold(GLFW_KEY_Q)) {
             // TODO(student): Translate the camera downward
-
+            camera->TranslateUpward(-deltaTime * cameraSpeed);
         }
 
         if (window->KeyHold(GLFW_KEY_E)) {
             // TODO(student): Translate the camera upward
+            camera->TranslateUpward(deltaTime * cameraSpeed);
+        }
 
+        if (window->KeyHold(GLFW_KEY_Z)) {
+            camera->RotateFirstPerson_OZ(-deltaTime);
+        }
+
+        if (window->KeyHold(GLFW_KEY_X)) {
+            camera->RotateFirstPerson_OZ(deltaTime);
         }
     }
 
@@ -172,6 +184,27 @@ void Lab5::OnInputUpdate(float deltaTime, int mods)
     // variables you might need in the class header. Inspect this file
     // for any hardcoded projection arguments (can you find any?) and
     // replace them with those extra variables.
+
+    if (window->KeyHold(GLFW_KEY_1)) {
+        initialFov -= changeFov * deltaTime;
+        projectionMatrix = glm::perspective(RADIANS(initialFov), window->props.aspectRatio, 0.01f, 200.0f);
+
+    }
+    if (window->KeyHold(GLFW_KEY_2)) {
+        initialFov += changeFov * deltaTime;
+        projectionMatrix = glm::perspective(RADIANS(initialFov), window->props.aspectRatio, 0.01f, 200.0f);
+
+    }
+    if (window->KeyHold(GLFW_KEY_3)) {
+        zoom += 0.95 * deltaTime;
+        projectionMatrix = glm::ortho(-zoom, zoom, -zoom, zoom, 0.01f, 200.0f);
+
+    }
+    if (window->KeyHold(GLFW_KEY_4)) {
+        zoom -= 1.05 * deltaTime;
+        projectionMatrix = glm::ortho(-zoom, zoom, -zoom, zoom, 0.01f, 200.0f);
+
+    }
 
 }
 
@@ -183,8 +216,6 @@ void Lab5::OnKeyPress(int key, int mods)
     {
         renderCameraTarget = !renderCameraTarget;
     }
-    // TODO(student): Switch projections
-
 }
 
 
@@ -203,20 +234,25 @@ void Lab5::OnMouseMove(int mouseX, int mouseY, int deltaX, int deltaY)
         float sensivityOX = 0.001f;
         float sensivityOY = 0.001f;
 
+        float angleOX = -deltaY * sensivityOX;
+        float angleOY = -deltaX * sensivityOY;
+
         if (window->GetSpecialKeyState() == 0) {
             renderCameraTarget = false;
             // TODO(student): Rotate the camera in first-person mode around
             // OX and OY using `deltaX` and `deltaY`. Use the sensitivity
             // variables for setting up the rotation speed.
-
+            camera->RotateFirstPerson_OX(angleOX);
+            camera->RotateFirstPerson_OY(angleOY);
         }
 
-        if (window->GetSpecialKeyState() & GLFW_MOD_CONTROL) {
+        if (window->GetSpecialKeyState() & GLFW_MOD_SHIFT) {
             renderCameraTarget = true;
             // TODO(student): Rotate the camera in third-person mode around
             // OX and OY using `deltaX` and `deltaY`. Use the sensitivity
             // variables for setting up the rotation speed.
-
+            camera->RotateThirdPerson_OX(angleOX);
+            camera->RotateThirdPerson_OY(angleOY);
         }
     }
 }
