@@ -42,7 +42,8 @@ endif()
 
 
 # Set options
-option(WITH_LAB_M1 "With module 1 labs" ON)
+option(AI_NPC_GAME "Build AI NPC game source files" ON)
+option(WITH_LAB_M1 "With module 1 labs" OFF)
 option(WITH_LAB_M2 "With module 2 labs" OFF)
 option(WITH_LAB_EXTRA "With extra labs" OFF)
 option(USE_DEV_COMPONENTS "Use dev components" OFF)
@@ -61,6 +62,9 @@ endif()
 # sources and headers for different courses. If the suffix variables remain
 # empty, the GLOB_RECURSE will look for files in the directory called `lab_`
 # which does not actually exist, but will not fail.
+if (AI_NPC_GAME)
+    set(AI_NPC_GAME_DIR "ai_npc_game")
+endif()
 if (WITH_LAB_M1)
     set(SUFFIX_LAB_M1 "m1")
 endif()
@@ -80,6 +84,7 @@ file(GLOB_RECURSE GFXF_SOURCES
     #
     ${CMAKE_CURRENT_LIST_DIR}/src/main.cpp
     #
+    ${CMAKE_CURRENT_LIST_DIR}/src/{AI_NPC_GAME_DIR}/*.c*
     ${CMAKE_CURRENT_LIST_DIR}/src/lab_${SUFFIX_LAB_M1}/*.c*
     ${CMAKE_CURRENT_LIST_DIR}/src/lab_${SUFFIX_LAB_M2}/*.c*
     ${CMAKE_CURRENT_LIST_DIR}/src/lab_${SUFFIX_LAB_EXTRA}/*.c*
@@ -94,10 +99,12 @@ file(GLOB_RECURSE GFXF_HEADERS_PRIVATE
     #
     ${CMAKE_CURRENT_LIST_DIR}/res/*.glsl
     #
+    ${CMAKE_CURRENT_LIST_DIR}/src/{AI_NPC_GAME_DIR}/*.h*
     ${CMAKE_CURRENT_LIST_DIR}/src/lab_${SUFFIX_LAB_M1}/*.h*
     ${CMAKE_CURRENT_LIST_DIR}/src/lab_${SUFFIX_LAB_M2}/*.h*
     ${CMAKE_CURRENT_LIST_DIR}/src/lab_${SUFFIX_LAB_EXTRA}/*.h*
     #
+    ${CMAKE_CURRENT_LIST_DIR}/src/{AI_NPC_GAME_DIR}/*.glsl
     ${CMAKE_CURRENT_LIST_DIR}/src/lab_${SUFFIX_LAB_M1}/*.glsl
     ${CMAKE_CURRENT_LIST_DIR}/src/lab_${SUFFIX_LAB_M2}/*.glsl
     ${CMAKE_CURRENT_LIST_DIR}/src/lab_${SUFFIX_LAB_EXTRA}/*.glsl
