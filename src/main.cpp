@@ -16,6 +16,10 @@
 #   include "lab_extra/lab_list.h"
 #endif
 
+#if defined(AI_NPC_GAME)
+#   include "ai_npc_game/ai_npc_game.h"
+#endif
+
 
 #ifdef _WIN32
     PREFER_DISCRETE_GPU_NVIDIA;
@@ -44,7 +48,7 @@ int main(int argc, char **argv)
     (void)Engine::Init(wp);
 
     // Create a new 3D world and start running it
-    World *world = new gfxc::SimpleScene();
+    World *world = new ai_npc::Game();
 
     world->Init();
     world->Run();

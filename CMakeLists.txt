@@ -235,6 +235,9 @@ source_group(TREE ${CMAKE_CURRENT_LIST_DIR} FILES
 # Add definitions (specific to this project)
 # Recommended reading: so@a/24470998/5922876, so@a/11437693/5922876
 set(GFXF_CXX_DEFS       LIBGFXC_EXPORTS GLM_FORCE_SILENT_WARNINGS _CRT_SECURE_NO_WARNINGS SOLVED $<$<CONFIG:Debug>:DEBUG>)
+if (AI_NPC_GAME)
+    set(GFXF_CXX_DEFS   ${GFXF_CXX_DEFS} AI_NPC_GAME)
+endif()
 if (WITH_LAB_M1)
     set(GFXF_CXX_DEFS   ${GFXF_CXX_DEFS} WITH_LAB_M1)
 endif()
