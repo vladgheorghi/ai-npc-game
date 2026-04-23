@@ -92,7 +92,7 @@
 
         RenderMesh(meshes["common"], mesh_pos);
 
-        RenderMesh(meshes["player_character"], shaders["VertexNormal"], glm::vec3(0), glm::vec3(100.0f));
+        RenderMesh(meshes["player_character"], shaders["VertexNormal"], glm::vec3(0));
 
     }
 

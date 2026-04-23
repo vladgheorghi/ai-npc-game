@@ -84,7 +84,7 @@ file(GLOB_RECURSE GFXF_SOURCES
     #
     ${CMAKE_CURRENT_LIST_DIR}/src/main.cpp
     #
-    ${CMAKE_CURRENT_LIST_DIR}/src/{AI_NPC_GAME_DIR}/*.c*
+    ${CMAKE_CURRENT_LIST_DIR}/src/${AI_NPC_GAME_DIR}/*.c*
     ${CMAKE_CURRENT_LIST_DIR}/src/lab_${SUFFIX_LAB_M1}/*.c*
     ${CMAKE_CURRENT_LIST_DIR}/src/lab_${SUFFIX_LAB_M2}/*.c*
     ${CMAKE_CURRENT_LIST_DIR}/src/lab_${SUFFIX_LAB_EXTRA}/*.c*
@@ -99,12 +99,12 @@ file(GLOB_RECURSE GFXF_HEADERS_PRIVATE
     #
     ${CMAKE_CURRENT_LIST_DIR}/res/*.glsl
     #
-    ${CMAKE_CURRENT_LIST_DIR}/src/{AI_NPC_GAME_DIR}/*.h*
+    ${CMAKE_CURRENT_LIST_DIR}/src/${AI_NPC_GAME_DIR}/*.h*
     ${CMAKE_CURRENT_LIST_DIR}/src/lab_${SUFFIX_LAB_M1}/*.h*
     ${CMAKE_CURRENT_LIST_DIR}/src/lab_${SUFFIX_LAB_M2}/*.h*
     ${CMAKE_CURRENT_LIST_DIR}/src/lab_${SUFFIX_LAB_EXTRA}/*.h*
     #
-    ${CMAKE_CURRENT_LIST_DIR}/src/{AI_NPC_GAME_DIR}/*.glsl
+    ${CMAKE_CURRENT_LIST_DIR}/src/${AI_NPC_GAME_DIR}/*.glsl
     ${CMAKE_CURRENT_LIST_DIR}/src/lab_${SUFFIX_LAB_M1}/*.glsl
     ${CMAKE_CURRENT_LIST_DIR}/src/lab_${SUFFIX_LAB_M2}/*.glsl
     ${CMAKE_CURRENT_LIST_DIR}/src/lab_${SUFFIX_LAB_EXTRA}/*.glsl
