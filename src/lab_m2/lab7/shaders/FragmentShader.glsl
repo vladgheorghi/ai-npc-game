@@ -4,6 +4,7 @@
 in vec2 texture_coord;
 // TODO (student): Declare the normal variable
 // received from vertex shader
+in vec3 normal;
 
 // Uniform properties
 uniform sampler2D text;
