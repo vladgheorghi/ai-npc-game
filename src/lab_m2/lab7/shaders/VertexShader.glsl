@@ -16,7 +16,7 @@ uniform mat4 View;
 uniform mat4 Projection;
 // TODO (student): Declare a new uniform variable array, which will
 // receive the bone transformations
-uniform mat4 Bones[MAX_BONES]
+uniform mat4 Bones[MAX_BONES];
 
 // Output
 out vec2 texture_coord;
@@ -33,7 +33,7 @@ void main()
 
     texture_coord = v_texture_coord;
     // TODO (student): Compute the normal
-    vec3 normal = mat3(boneTransform) * v_normal;
+    normal = mat3(boneTransform) * v_normal;
 
     // TODO (student): Apply the bone transformation on the vertex position
     gl_Position = Projection * View * Model * boneTransform * vec4(v_position, 1.0);

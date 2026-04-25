@@ -41,7 +41,7 @@ void Lab7::Init()
     // Load a mesh from file into GPU memory
     {
         Mesh* mesh = new Mesh("animation");
-        mesh->LoadMesh(PATH_JOIN(window->props.selfDir, RESOURCE_PATH::MODELS, "skinning"), "boblampclean.md5mesh");
+        mesh->LoadMesh(PATH_JOIN(window->props.selfDir, RESOURCE_PATH::MODELS_AI_NPC_GAME), "scene.gltf");
         meshes[mesh->GetMeshID()] = mesh;
     }
 }
@@ -125,10 +125,7 @@ void Lab7::ReadNodeHierarchy(Mesh* mesh, float animationTime, const aiNode* pNod
         // Interpolate the scaling and generate the scaling transformation matrix
         aiVector3D Scaling;
         ComputeInterpolatedScaling(Scaling, animationTime, pNodeAnim);
-        glm::mat4 ScalingM = glm::transpose(glm::mat4(Scaling.x, 0, 0, 0,
-            0, Scaling.y, 0, 0,
-            0, 0, Scaling.z, 0,
-            0, 0, 0, 1));
+        glm::mat4 ScalingM = glm::scale(glm::mat4(1.0f), glm::vec3(Scaling.x, Scaling.y, Scaling.z));
 
         // Interpolate the rotation and generate the rotation transformation matrix
         aiQuaternion RotationQ;
@@ -139,10 +136,7 @@ void Lab7::ReadNodeHierarchy(Mesh* mesh, float animationTime, const aiNode* pNod
         // Interpolate the translation and generate the translation transformation matrix
         aiVector3D Translation;
         ComputeInterpolatedPosition(Translation, animationTime, pNodeAnim);
-        glm::mat4 TranslationM = glm::transpose(glm::mat4(1, 0, 0, Translation.x,
-            0, 1, 0, Translation.y,
-            0, 0, 1, Translation.z,
-            0, 0, 0, 1));
+        glm::mat4 TranslationM = glm::translate(glm::mat4(1.0f), glm::vec3(Translation.x, Translation.y, Translation.z));
 
         // Combine the above transformations
         nodeTransformation = TranslationM * RotationM * ScalingM;
@@ -195,7 +189,9 @@ unsigned int Lab7::FindRotation(float animationTime, const aiNodeAnim* pNodeAnim
             return i;
     }
 
-    assert(0);
+    // animationTime is at or beyond the last keyframe — return the second-to-last
+    // index so interpolation blends between the last two keyframes rather than crashing.
+    return pNodeAnim->mNumRotationKeys - 2;
 }
 
 void Lab7::ComputeInterpolatedRotation(aiQuaternion& out, float animationTime, const aiNodeAnim* pNodeAnim)
@@ -216,7 +212,7 @@ void Lab7::ComputeInterpolatedRotation(aiQuaternion& out, float animationTime, c
 
     // Compute the factor of interpolation for a frame
     float factor = (animationTime - (float)pNodeAnim->mRotationKeys[rotationIndex].mTime) / deltaTime;
-    assert(factor >= 0.0f && factor <= 1.0f);
+    factor = glm::clamp(factor, 0.0f, 1.0f);
 
     // TODO (student): Compute the final rotation factor by interpolating the values from the two selected key frames
     // HINT! Use the Interpolate method from the aiQuaternion class! Don't forget to normalize the result!
@@ -241,7 +237,9 @@ unsigned int Lab7::FindScaling(float animationTime, const aiNodeAnim* pNodeAnim)
             return i;
     }
 
-    assert(0);
+    // animationTime is at or beyond the last keyframe — return the second-to-last
+    // index so interpolation blends between the last two keyframes rather than crashing.
+    return pNodeAnim->mNumScalingKeys - 2;
 }
 
 
@@ -263,7 +261,7 @@ void Lab7::ComputeInterpolatedScaling(aiVector3D& out, float animationTime, cons
 
     // Compute the factor of interpolation for a frame
     float factor = (animationTime - (float)pNodeAnim->mScalingKeys[scalingIndex].mTime) / deltaTime;
-    assert(factor >= 0.0f && factor <= 1.0f);
+    factor = glm::clamp(factor, 0.0f, 1.0f);
 
     // TODO (student): Compute the final scale factor by interpolating the values from the two selected key frames
     // Save the result in the out variable
@@ -283,11 +281,13 @@ unsigned int Lab7::FindPosition(float animationTime, const aiNodeAnim* pNodeAnim
     // the last translation transformation which is at a lower time stamp so that we can compute the
     // interpolation of the translation transformation of the bone. Return the index.
     for (unsigned int i = 0; i < pNodeAnim->mNumPositionKeys - 1; i++) {
-        if (animationTime < pNodeAnim->mPositionKeys[i + 1].mTime)
+        if (animationTime < (float)pNodeAnim->mPositionKeys[i + 1].mTime)
             return i;
     }
 
-    assert(0);
+    // animationTime is at or beyond the last keyframe — return the second-to-last
+    // index so interpolation blends between the last two keyframes rather than crashing.
+    return pNodeAnim->mNumPositionKeys - 2;
 }
 
 void Lab7::ComputeInterpolatedPosition(aiVector3D& out, float animationTime, const aiNodeAnim* pNodeAnim)
@@ -308,7 +308,7 @@ void Lab7::ComputeInterpolatedPosition(aiVector3D& out, float animationTime, con
 
     // Compute the factor of interpolation for a frame
     float factor = (animationTime - (float)pNodeAnim->mPositionKeys[positionIndex].mTime) / deltaTime;
-    assert(factor >= 0.0f && factor <= 1.0f);
+    factor = glm::clamp(factor, 0.0f, 1.0f);
 
     // TODO (student): Compute the final translation factor by interpolating the values from the two selected key frames
     // Save the result in the out variable

@@ -14,7 +14,7 @@ layout(location = 0) out vec4 out_color;
 
 void main()
 {
-    vec4 color = texture2D(text, texture_coord);
+    vec4 color = texture(text, texture_coord);
 
     if (color.a < 0.5)
     {
