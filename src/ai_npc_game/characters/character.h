@@ -16,6 +16,8 @@ namespace ai_npc
             glm::vec3 right;
             glm::vec3 up;
 
+            float movementSpeed;
+
         // class methods
         public:
             Character();
@@ -26,11 +28,13 @@ namespace ai_npc
             glm::vec3 getForward();
             glm::vec3 getRight();
             glm::vec3 getUp();
+            float getMovementSpeed();
 
             void setPosition(glm::vec3 position);
             void setForward(glm::vec3 forward);
             void setRight(glm::vec3 right);
             void setUp(glm::vec3 up);
+            void setMovementSpeed(float movementSpeed);
         private:
         protected:
     }
