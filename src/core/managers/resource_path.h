@@ -20,4 +20,5 @@ namespace SOURCE_PATH
     const std::string M1        = PATH_JOIN("src", "lab_m1");
     const std::string M2        = PATH_JOIN("src", "lab_m2");
     const std::string EXTRA     = PATH_JOIN("src", "lab_extra");
+    const std::string AI_NPC    = PATH_JOIN("src", "ai_npc_game");
 }
