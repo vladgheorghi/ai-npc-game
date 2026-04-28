@@ -1,35 +1,41 @@
 #include "object.h"
 
-#include "utils/glm_utils.h"
-#include "utils/math_utils.h"
 
 namespace ai_npc {
-    Object::Object(glm::vec3 position) {
-        this->position = position;
+    // Delegating default constructor
+    Object::Object() : Object(glm::vec3(0.0f)) { }
 
-        forward = glm::normalize(glm::vec3(0, 0, -1));
-        up = glm::normalize(glm::vec3(0, 1, 0));
-        right = glm::cross(forward, up);
+    // Initialize rotation in the member initializer list to avoid calling a deleted/default ctor
+    Object::Object(glm::vec3 position)
+        : rotation(floatMod(), floatMod(), floatMod()),
+          position(position),
+          scale(glm::vec3(1, 1, 1)),
+          forward(glm::normalize(glm::vec3(0, 0, -1))),
+          up(glm::normalize(glm::vec3(0, 1, 0))),
+          right(glm::cross(forward, up)),
+          modelMatrix(glm::mat4(1.0f)),
+          redoModelMatrix(false),
+          mesh(nullptr),
+		  shader(nullptr)
+    { }
 
-        modelMatrix = glm::mat4(1.0f);
-        redoModelMatrix = false;
-
-        mesh = nullptr;
-        shader = nullptr;
-    }
-
-    Object::Object(glm::vec3 position, Mesh *mesh, Shader *shader) {
-        this->Object(position);
-
+    // Delegate to the position constructor properly
+    Object::Object(glm::vec3 position, Mesh *mesh, Shader *shader)
+        : Object(position)
+    {
         this->mesh = mesh;
         this->shader = shader;
     }
 
-    void Object::render() {
+    Object::~Object() = default;
+
+    void Object::render(Camera *camera) {
         if (redoModelMatrix) {
             modelMatrix = glm::translate(glm::mat4(1.0f), position);
             modelMatrix = glm::scale(modelMatrix, scale);
-            modelMatrix = glm::rotate(modelMatrix, rotation);
+            modelMatrix = glm::rotate(modelMatrix, (float)RADIANS(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            modelMatrix = glm::rotate(modelMatrix, (float)RADIANS(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            modelMatrix = glm::rotate(modelMatrix, (float)RADIANS(rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
         }
 
         if (!mesh || !shader || !shader->program)
@@ -37,13 +43,13 @@ namespace ai_npc {
 
         // Render an object using the specified shader and the specified position
         shader->Use();
-        glUniformMatrix4fv(shader->loc_view_matrix, 1, GL_FALSE, glm::value_ptr(GetSceneCamera()->GetViewMatrix()));
-        glUniformMatrix4fv(shader->loc_projection_matrix, 1, GL_FALSE, glm::value_ptr(GetSceneCamera()->GetProjectionMatrix()));
+        glUniformMatrix4fv(shader->loc_view_matrix, 1, GL_FALSE, glm::value_ptr(camera->GetViewMatrix()));
+        glUniformMatrix4fv(shader->loc_projection_matrix, 1, GL_FALSE, glm::value_ptr(camera->GetProjectionMatrix()));
         glUniformMatrix4fv(shader->loc_model_matrix, 1, GL_FALSE, glm::value_ptr(modelMatrix));
 
         glm::mat4 bones[200];
 
-        for (int i = 0; i < mesh->m_BoneInfo.size(); i++)
+        for (int i = 0; i < (int)mesh->m_BoneInfo.size(); i++)
         {
             bones[i] = mesh->m_BoneInfo[i].finalTransformation;
         }
@@ -58,7 +64,7 @@ namespace ai_npc {
 
     void Object::moveForward(float distance) {
         glm::vec3 direction = glm::vec3(forward.x, 0, forward.z);
-        positon += direction * distance;
+        position += direction * distance;
         redoModelMatrix = true;
     }
 
@@ -68,34 +74,39 @@ namespace ai_npc {
         redoModelMatrix = true;
     }
 
-    void Object::rotateOX(float radians) {
-        rotation.x += radians;
+    void Object::rotateOX(float angle) {
+        rotation.x += angle;
         rotate();
         redoModelMatrix = true;
     }
 
-    void Object::rotateOY(float radians) {
-        rotation.y += radians;
+    void Object::rotateOY(float angle) {
+        rotation.y += angle;
         rotate();
         redoModelMatrix = true;
     }
 
-    void Object::rotateOZ(float radians) {
-        rotation.z += radians;
+    void Object::rotateOZ(float angle) {
+        rotation.z += angle;
         rotate();
         redoModelMatrix = true;
     }
 
     void Object::rotate() {
-        glm::mat4 rotateWorldOY = glm::rotate(glm::mat4(1.0f), radians, rotation);
+        // Build rotation matrix from Euler angles stored in 'rotation'
+        glm::mat4 rot = glm::mat4(1.0f);
+        rot = glm::rotate(rot, (float)RADIANS(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
+        rot = glm::rotate(rot, (float)RADIANS(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
+        rot = glm::rotate(rot, (float)RADIANS(rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
 
-        glm::vec4 newForward = rotateWorldOY * glm::vec4(forward, 1.0f);
+        // Rotate direction vectors (use w = 0 for directions)
+        glm::vec4 newForward = rot * glm::vec4(glm::normalize(forward), 1.0f);
         forward = glm::normalize(glm::vec3(newForward));
 
-        glm::vec4 newRight = rotateWorldOY * glm::vec4(right, 1.0f);
+        glm::vec4 newRight = rot * glm::vec4(glm::normalize(right), 1.0f);
         right = glm::normalize(glm::vec3(newRight));
 
-        up = glm::cross(forward, right);
+        up = glm::normalize(glm::cross(forward, right));
     }
 
     void Object::uniformScale(float value) {
@@ -103,12 +114,12 @@ namespace ai_npc {
         redoModelMatrix = true;
     }
 
-    glm::vec3 Object::getForward() { return forward; }
-    glm::vec3 Object::getRight() { return right; }
-    glm::vec3 Object::getUp() { return up; }
-    glm::vec3 Object::getPosition() { return position; }
-    glm::vec3 Object::getRotation() { return rotation; }
-    glm::vec3 Object::getScale() { return scale; }
+    glm::vec3 Object::getForward() const { return forward; }
+    glm::vec3 Object::getRight() const { return right; }
+    glm::vec3 Object::getUp() const { return up; }
+    glm::vec3 Object::getPosition() const { return position; }
+    glm::vec3 Object::getRotation() const { return rotation; }
+    glm::vec3 Object::getScale() const { return scale; }
     Mesh *Object::getMesh() { return mesh; }
     Shader *Object::getShader() { return shader; }
 

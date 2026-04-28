@@ -1,12 +1,15 @@
 #pragma once
 
-#include "components/simple_scene.h"
-
-#include "objects/character.h"
+#include "animation.h"
+#include "ai_npc_game/objects/character.h"
+#include "ai_npc_game/camera/camera.h"
 
 
 namespace ai_npc
 {
+
+    class Character;
+
     class Game : public gfxc::SimpleScene
     {
      public:
@@ -16,8 +19,6 @@ namespace ai_npc
         void Init() override;
 
      private:
-         void RenderMesh(Mesh* mesh, Shader* shader, const glm::mat4& modelMatrix);
-
          void FrameStart() override;
          void Update(float deltaTimeSeconds) override;
          void FrameEnd() override;
@@ -40,5 +41,7 @@ namespace ai_npc
         Shader *skinningShader;
 
         Character *character;
+
+        Camera* camera;
     };
 }   // namespace ai_npc

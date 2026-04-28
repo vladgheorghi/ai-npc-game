@@ -40,14 +40,14 @@ void SimpleScene::InitResources()
 
     objectModel = new Transform();
 
-    camera = new Camera();
-    camera->SetPerspective(60, window->props.aspectRatio, 0.01f, 200);
-    camera->m_transform->SetMoveSpeed(2);
-    camera->m_transform->SetWorldPosition(glm::vec3(0, 1.6f, 0));
-    camera->m_transform->SetWorldRotation(glm::vec3(-15, 0, 0));
-    camera->Update();
+    //camera = new Camera();
+    //camera->SetPerspective(60, window->props.aspectRatio, 0.01f, 200);
+    //camera->m_transform->SetMoveSpeed(2);
+    //camera->m_transform->SetWorldPosition(glm::vec3(0, 1.6f, 0));
+    //camera->m_transform->SetWorldRotation(glm::vec3(-15, 0, 0));
+    //camera->Update();
 
-    cameraInput = new CameraInput(camera);
+    //cameraInput = new CameraInput(camera);
     window = Engine::GetWindow();
 
     SceneInput *SI = new SceneInput(this);
@@ -120,10 +120,10 @@ void SimpleScene::AddMeshToList(Mesh * mesh)
 }
 
 
-void SimpleScene::DrawCoordinateSystem()
-{
-    DrawCoordinateSystem(camera->GetViewMatrix(), camera->GetProjectionMatrix());
-}
+//void SimpleScene::DrawCoordinateSystem()
+//{
+//    DrawCoordinateSystem(camera->GetViewMatrix(), camera->GetProjectionMatrix());
+//}
 
 
 void SimpleScene::DrawCoordinateSystem(const glm::mat4 & viewMatrix, const glm::mat4 & projectionMaxtix)
@@ -176,89 +176,89 @@ void SimpleScene::DrawCoordinateSystem(const glm::mat4 & viewMatrix, const glm::
 }
 
 
-void SimpleScene::RenderMesh(Mesh * mesh, Shader * shader, glm::vec3 position, glm::vec3 scale)
-{
-    if (!mesh || !shader || !shader->program)
-        return;
-
-    // Render an object using the specified shader and the specified position
-    shader->Use();
-    glUniformMatrix4fv(shader->loc_view_matrix, 1, GL_FALSE, glm::value_ptr(camera->GetViewMatrix()));
-    glUniformMatrix4fv(shader->loc_projection_matrix, 1, GL_FALSE, glm::value_ptr(camera->GetProjectionMatrix()));
-
-    glm::mat4 model(1);
-    model = glm::translate(model, position);
-    model = glm::scale(model, scale);
-    glUniformMatrix4fv(shader->loc_model_matrix, 1, GL_FALSE, glm::value_ptr(model));
-    mesh->Render();
-}
-
-
-void SimpleScene::RenderMesh(Mesh * mesh, glm::vec3 position, glm::vec3 scale)
-{
-    RenderMesh(mesh, shaders["Simple"], position, scale);
-}
+//void SimpleScene::RenderMesh(Mesh * mesh, Shader * shader, glm::vec3 position, glm::vec3 scale)
+//{
+//    if (!mesh || !shader || !shader->program)
+//        return;
+//
+//    // Render an object using the specified shader and the specified position
+//    shader->Use();
+//    glUniformMatrix4fv(shader->loc_view_matrix, 1, GL_FALSE, glm::value_ptr(camera->GetViewMatrix()));
+//    glUniformMatrix4fv(shader->loc_projection_matrix, 1, GL_FALSE, glm::value_ptr(camera->GetProjectionMatrix()));
+//
+//    glm::mat4 model(1);
+//    model = glm::translate(model, position);
+//    model = glm::scale(model, scale);
+//    glUniformMatrix4fv(shader->loc_model_matrix, 1, GL_FALSE, glm::value_ptr(model));
+//    mesh->Render();
+//}
 
 
-void SimpleScene::RenderMesh2D(Mesh * mesh, Shader * shader, const glm::mat3 &modelMatrix)
-{
-    if (!mesh || !shader || !shader->program)
-        return;
-
-    shader->Use();
-    glUniformMatrix4fv(shader->loc_view_matrix, 1, GL_FALSE, glm::value_ptr(camera->GetViewMatrix()));
-    glUniformMatrix4fv(shader->loc_projection_matrix, 1, GL_FALSE, glm::value_ptr(camera->GetProjectionMatrix()));
-
-    glm::mat3 mm = modelMatrix;
-    glm::mat4 model = glm::mat4(
-        mm[0][0], mm[0][1], mm[0][2], 0.f,
-        mm[1][0], mm[1][1], mm[1][2], 0.f,
-        0.f, 0.f, mm[2][2], 0.f,
-        mm[2][0], mm[2][1], 0.f, 1.f);
-
-    glUniformMatrix4fv(shader->loc_model_matrix, 1, GL_FALSE, glm::value_ptr(model));
-    mesh->Render();
-}
+//void SimpleScene::RenderMesh(Mesh * mesh, glm::vec3 position, glm::vec3 scale)
+//{
+//    RenderMesh(mesh, shaders["Simple"], position, scale);
+//}
 
 
-void SimpleScene::RenderMesh2D(Mesh * mesh, const glm::mat3 & modelMatrix, const glm::vec3 & color) const
-{
-    Shader* shader = shaders.at("Color");
-
-    if (!mesh || !shader || !shader->program)
-        return;
-
-    glm::mat3 mm = modelMatrix;
-    glm::mat4 model = glm::mat4(
-        mm[0][0], mm[0][1], mm[0][2], 0.f,
-        mm[1][0], mm[1][1], mm[1][2], 0.f,
-        0.f, 0.f, mm[2][2], 0.f,
-        mm[2][0], mm[2][1], 0.f, 1.f);
-
-    // Render an object using the specified shader and the specified position
-    shader->Use();
-    glUniformMatrix4fv(shader->loc_view_matrix, 1, GL_FALSE, glm::value_ptr(camera->GetViewMatrix()));
-    glUniformMatrix4fv(shader->loc_projection_matrix, 1, GL_FALSE, glm::value_ptr(camera->GetProjectionMatrix()));
-    glUniformMatrix4fv(shader->loc_model_matrix, 1, GL_FALSE, glm::value_ptr(model));
-    glUniform3f(shader->GetUniformLocation("color"), color.r, color.g, color.b);
-
-    mesh->Render();
-}
+//void SimpleScene::RenderMesh2D(Mesh * mesh, Shader * shader, const glm::mat3 &modelMatrix)
+//{
+//    if (!mesh || !shader || !shader->program)
+//        return;
+//
+//    shader->Use();
+//    glUniformMatrix4fv(shader->loc_view_matrix, 1, GL_FALSE, glm::value_ptr(camera->GetViewMatrix()));
+//    glUniformMatrix4fv(shader->loc_projection_matrix, 1, GL_FALSE, glm::value_ptr(camera->GetProjectionMatrix()));
+//
+//    glm::mat3 mm = modelMatrix;
+//    glm::mat4 model = glm::mat4(
+//        mm[0][0], mm[0][1], mm[0][2], 0.f,
+//        mm[1][0], mm[1][1], mm[1][2], 0.f,
+//        0.f, 0.f, mm[2][2], 0.f,
+//        mm[2][0], mm[2][1], 0.f, 1.f);
+//
+//    glUniformMatrix4fv(shader->loc_model_matrix, 1, GL_FALSE, glm::value_ptr(model));
+//    mesh->Render();
+//}
 
 
-void SimpleScene::RenderMesh(Mesh * mesh, Shader * shader, const glm::mat4 & modelMatrix)
-{
-    if (!mesh || !shader || !shader->program)
-        return;
+//void SimpleScene::RenderMesh2D(Mesh * mesh, const glm::mat3 & modelMatrix, const glm::vec3 & color) const
+//{
+//    Shader* shader = shaders.at("Color");
+//
+//    if (!mesh || !shader || !shader->program)
+//        return;
+//
+//    glm::mat3 mm = modelMatrix;
+//    glm::mat4 model = glm::mat4(
+//        mm[0][0], mm[0][1], mm[0][2], 0.f,
+//        mm[1][0], mm[1][1], mm[1][2], 0.f,
+//        0.f, 0.f, mm[2][2], 0.f,
+//        mm[2][0], mm[2][1], 0.f, 1.f);
+//
+//    // Render an object using the specified shader and the specified position
+//    shader->Use();
+//    glUniformMatrix4fv(shader->loc_view_matrix, 1, GL_FALSE, glm::value_ptr(camera->GetViewMatrix()));
+//    glUniformMatrix4fv(shader->loc_projection_matrix, 1, GL_FALSE, glm::value_ptr(camera->GetProjectionMatrix()));
+//    glUniformMatrix4fv(shader->loc_model_matrix, 1, GL_FALSE, glm::value_ptr(model));
+//    glUniform3f(shader->GetUniformLocation("color"), color.r, color.g, color.b);
+//
+//    mesh->Render();
+//}
 
-    // Render an object using the specified shader and the specified position
-    shader->Use();
-    glUniformMatrix4fv(shader->loc_view_matrix, 1, GL_FALSE, glm::value_ptr(camera->GetViewMatrix()));
-    glUniformMatrix4fv(shader->loc_projection_matrix, 1, GL_FALSE, glm::value_ptr(camera->GetProjectionMatrix()));
-    glUniformMatrix4fv(shader->loc_model_matrix, 1, GL_FALSE, glm::value_ptr(modelMatrix));
 
-    mesh->Render();
-}
+//void SimpleScene::RenderMesh(Mesh * mesh, Shader * shader, const glm::mat4 & modelMatrix)
+//{
+//    if (!mesh || !shader || !shader->program)
+//        return;
+//
+//    // Render an object using the specified shader and the specified position
+//    shader->Use();
+//    glUniformMatrix4fv(shader->loc_view_matrix, 1, GL_FALSE, glm::value_ptr(camera->GetViewMatrix()));
+//    glUniformMatrix4fv(shader->loc_projection_matrix, 1, GL_FALSE, glm::value_ptr(camera->GetProjectionMatrix()));
+//    glUniformMatrix4fv(shader->loc_model_matrix, 1, GL_FALSE, glm::value_ptr(modelMatrix));
+//
+//    mesh->Render();
+//}
 
 
 void SimpleScene::ReloadShaders() const
@@ -276,16 +276,16 @@ void SimpleScene::ReloadShaders() const
 }
 
 
-Camera * SimpleScene::GetSceneCamera() const
-{
-    return camera;
-}
-
-
-InputController * SimpleScene::GetCameraInput() const
-{
-    return cameraInput;
-}
+//Camera * SimpleScene::GetSceneCamera() const
+//{
+//    return camera;
+//}
+//
+//
+//InputController * SimpleScene::GetCameraInput() const
+//{
+//    return cameraInput;
+//}
 
 
 void SimpleScene::ClearScreen(const glm::vec3 &color)
@@ -313,5 +313,5 @@ bool SimpleScene::ToggleGroundPlane()
 void SimpleScene::Update(float deltaTimeSeconds)
 {
     ClearScreen();
-    DrawCoordinateSystem();
+    //DrawCoordinateSystem();
 }

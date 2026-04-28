@@ -24,7 +24,10 @@ namespace ai_npc
         Character(glm::vec3 position, Mesh* mesh, Shader* shader);
         ~Character();
 
-        float getMovementSpeed();
+        void moveForward(float distance) override;
+        void moveRight(float distance) override;
+
+        float getMovementSpeed() const;
 
         void setMovementSpeed(float movementSpeed);
     private:

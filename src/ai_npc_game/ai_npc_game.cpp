@@ -1,6 +1,4 @@
 #include "ai_npc_game.h"
-#include "animation.h"
-#include "objects/character.h"
 
 #include <vector>
 #include <iostream>
@@ -16,6 +14,8 @@ namespace ai_npc {
         mesh_pos = glm::vec3(3, 0, 3);
 
         skinningShader = new Shader("Skinning");
+        character = new Character(glm::vec3(0, 0, 0));
+        camera = new Camera();
     }
 
 
@@ -26,10 +26,6 @@ namespace ai_npc {
 
     void Game::Init()
     {
-        auto camera = GetSceneCamera();
-        camera->SetPositionAndRotation(glm::vec3(0, 3.5, 4), glm::quat(glm::vec3(-30 * TO_RADIANS, 0, 0)));
-        camera->Update();
-
         // Create a shader program for rendering to texture
         {
             skinningShader->AddShader(PATH_JOIN(window->props.selfDir, SOURCE_PATH::AI_NPC, "shaders", "VertexShader.glsl"), GL_VERTEX_SHADER);
@@ -45,7 +41,14 @@ namespace ai_npc {
         }
 
         {
-            character = new Character(glm::vec3(0, 0, 0), meshes["player_character"], skinningShader);
+			character->setMesh(meshes["player_character"]);
+			character->setShader(shaders["Skinning"]);
+            character->rotateOZ(180);
+        }
+
+        {
+            camera->Set(character->getPosition() + glm::vec3(0, 1, camera->distanceToTarget), character->getPosition() + glm::vec3(0, 1, 0), glm::vec3(0, 1, 0));
+			camera->SetProjectionMatrix(RADIANS(60), window->props.aspectRatio, 0.01f, 200.0f);
         }
     }
 
@@ -59,7 +62,7 @@ namespace ai_npc {
     {
         ClearScreen();
         
-        character->render();
+        character->render(camera);
 
         float runningTime = (float)((double)Engine::GetElapsedTime());
         Animation::BoneTransform(meshes["player_character"], runningTime);
@@ -68,7 +71,7 @@ namespace ai_npc {
 
     void Game::FrameEnd()
     {
-        DrawCoordinateSystem();
+        DrawCoordinateSystem(camera->GetViewMatrix(), camera->GetProjectionMatrix());
     }
 
     /*
@@ -78,36 +81,24 @@ namespace ai_npc {
     void Game::OnInputUpdate(float deltaTime, int mods)
     {
         // Treat continuous update based on input
+        if (window->KeyHold(GLFW_KEY_W)) {
+            character->moveForward(deltaTime);
+            camera->MoveForward(deltaTime * character->getMovementSpeed(), character->getForward());
+        }
 
-        // TODO(student): Add some key hold events that will let you move
-        // a mesh instance on all three axes. You will also need to
-        // generalize the position used by `RenderMesh`.
-        float speed = 2.5f;
+        if (window->KeyHold(GLFW_KEY_A)) {
+            character->moveRight(-deltaTime);
+            camera->MoveForward(-deltaTime * character->getMovementSpeed(), character->getRight());
+        }
 
-        if (!window->MouseHold(GLFW_MOUSE_BUTTON_RIGHT)) {
-            if (window->KeyHold(GLFW_KEY_W)) {
-                mesh_pos.z -= deltaTime * speed;
-            }
+        if (window->KeyHold(GLFW_KEY_S)) {
+            character->moveForward(-deltaTime);
+			camera->MoveForward(-deltaTime * character->getMovementSpeed(), character->getForward());
+        }
 
-            if (window->KeyHold(GLFW_KEY_A)) {
-                mesh_pos.x -= deltaTime * speed;
-            }
-
-            if (window->KeyHold(GLFW_KEY_S)) {
-                mesh_pos.z += deltaTime * speed;
-            }
-
-            if (window->KeyHold(GLFW_KEY_D)) {
-                mesh_pos.x += deltaTime * speed;
-            }
-
-            if (window->KeyHold(GLFW_KEY_E)) {
-                mesh_pos.y += deltaTime * speed;
-            }
-
-            if (window->KeyHold(GLFW_KEY_Q)) {
-                mesh_pos.y -= deltaTime * speed;
-            }
+        if (window->KeyHold(GLFW_KEY_D)) {
+            character->moveRight(deltaTime);
+			camera->MoveForward(deltaTime * character->getMovementSpeed(), character->getRight());
         }
     }
 
@@ -126,7 +117,14 @@ namespace ai_npc {
 
     void Game::OnMouseMove(int mouseX, int mouseY, int deltaX, int deltaY)
     {
+        float sensivityOX = 0.001f;
+        float sensivityOY = 0.001f;
         // Add mouse move event
+        if (window->MouseHold(GLFW_MOUSE_BUTTON_RIGHT))
+        {
+            camera->RotateThirdPerson_OX(-deltaY * sensivityOY);
+            camera->RotateThirdPerson_OY(-deltaX * sensivityOX);
+        }
     }
 
 

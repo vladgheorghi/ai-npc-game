@@ -11,6 +11,8 @@ private:
     void wrapToLimit();
 
 public:
+    floatMod();
+
     floatMod(float value, float limit);
 
     // -----------------------------------------

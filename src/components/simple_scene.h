@@ -34,19 +34,19 @@ namespace gfxc
 
         protected:
         virtual void AddMeshToList(Mesh *mesh);
-        virtual void DrawCoordinateSystem();
+        //virtual void DrawCoordinateSystem();
         virtual void DrawCoordinateSystem(const glm::mat4 &viewMatrix, const glm::mat4 &projectionMaxtix);
 
-        virtual void RenderMesh(Mesh *mesh, Shader *shader, glm::vec3 position, glm::vec3 scale = glm::vec3(1));
-        virtual void RenderMesh(Mesh *mesh, glm::vec3 position, glm::vec3 scale = glm::vec3(1));
+        //virtual void RenderMesh(Mesh *mesh, Shader *shader, glm::vec3 position, glm::vec3 scale = glm::vec3(1));
+        //virtual void RenderMesh(Mesh *mesh, glm::vec3 position, glm::vec3 scale = glm::vec3(1));
 
-        virtual void RenderMesh2D(Mesh *mesh, Shader *shader, const glm::mat3 &modelMatrix);
-        virtual void RenderMesh2D(Mesh *mesh, const glm::mat3 &modelMatrix, const glm::vec3 &color) const;
+        //virtual void RenderMesh2D(Mesh *mesh, Shader *shader, const glm::mat3 &modelMatrix);
+        //virtual void RenderMesh2D(Mesh *mesh, const glm::mat3 &modelMatrix, const glm::vec3 &color) const;
 
-        virtual void RenderMesh(Mesh *mesh, Shader *shader, const glm::mat4 &modelMatrix);
+        //virtual void RenderMesh(Mesh *mesh, Shader *shader, const glm::mat4 &modelMatrix);
 
-        Camera *GetSceneCamera() const;
-        InputController *GetCameraInput() const;
+        //Camera *GetSceneCamera() const;
+        //InputController *GetCameraInput() const;
 
         void ClearScreen(const glm::vec3 &color = glm::vec3(0, 0, 0));
 
@@ -67,8 +67,8 @@ namespace gfxc
         void glLineWidth(GLfloat width);
 
      private:
-        Camera *camera;
-        InputController *cameraInput;
+        //Camera *camera;
+        //InputController *cameraInput;
 
         bool drawGroundPlane;
         Mesh *xozPlane;

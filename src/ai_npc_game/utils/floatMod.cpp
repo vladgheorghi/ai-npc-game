@@ -1,5 +1,7 @@
 #include "floatMod.h"
 
+floatMod::floatMod() : value(0.0f), limit(180.0f) { }
+
 floatMod::floatMod(float value, float limit) : value(value), limit(limit) {
     wrapToLimit();
 }

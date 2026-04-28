@@ -3,7 +3,11 @@
 #include "utils/glm_utils.h"
 #include "utils/math_utils.h"
 
-#include "../utils/floatMod.h"
+#include "core/gpu/mesh.h"
+#include "core/gpu/shader.h"
+
+#include "ai_npc_game/camera/camera.h"
+#include "ai_npc_game/utils/floatMod.h"
 
 namespace ai_npc
 {
@@ -34,21 +38,21 @@ namespace ai_npc
         Object(glm::vec3 position, Mesh *mesh, Shader *shader);
         ~Object();
 
-        void render();
+        void render(Camera *camera);
 
-        void moveForward(float distance);
-        void moveRight(float distance);
-        void rotateOX(float radians);
-        void rotateOY(float radians);
-        void rotateOZ(float radians);
+        virtual void moveForward(float distance);
+        virtual void moveRight(float distance);
+        void rotateOX(float angle);
+        void rotateOY(float angle);
+        void rotateOZ(float angle);
         void uniformScale(float value);
 
-        glm::vec3 getForward();
-        glm::vec3 getRight();
-        glm::vec3 getUp();
-        glm::vec3 getPosition();
-        glm::vec3 getRotation();
-        glm::vec3 getScale();
+        glm::vec3 getForward() const;
+        glm::vec3 getRight() const;
+        glm::vec3 getUp() const;
+        glm::vec3 getPosition() const;
+        glm::vec3 getRotation() const;
+        glm::vec3 getScale() const;
         Mesh *getMesh();
         Shader *getShader();
 
