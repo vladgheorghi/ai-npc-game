@@ -22,7 +22,7 @@ namespace ai_npc
     glm::vec3 up;
     
     glm::vec3 position;
-    glm::vec<3, floatMod, glm::packed_highp> rotation;
+    vec3Mod rotation;
     glm::vec3 scale;
 
     glm::mat4 modelMatrix;
@@ -30,6 +30,11 @@ namespace ai_npc
 
     Shader *shader;
     Mesh *mesh;
+
+    // Rotation offsets only applied to the mesh at render time
+    vec3Mod meshRotation;
+    // Rotation offsets to correct irregularities from mesh file. Only applied to mesh at render time
+    vec3Mod meshRotationCorrection;
 
         // class methods
     public:
@@ -55,6 +60,8 @@ namespace ai_npc
         glm::vec3 getScale() const;
         Mesh *getMesh();
         Shader *getShader();
+        vec3Mod getMeshRotation() const;
+        vec3Mod getMeshRotationCorrection() const;
 
         void setPosition(glm::vec3 position);
         void setForward(glm::vec3 forward);
@@ -62,6 +69,8 @@ namespace ai_npc
         void setUp(glm::vec3 up);
         void setMesh(Mesh *mesh);
         void setShader(Shader *shader);
+        void setMeshRotation(vec3Mod meshRotation);
+        void setMeshRotationCorrection(vec3Mod rotMeshCorrection);
     private:
         void rotate();
     protected:

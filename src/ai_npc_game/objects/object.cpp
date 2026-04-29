@@ -8,13 +8,15 @@ namespace ai_npc {
     // Initialize rotation in the member initializer list to avoid calling a deleted/default ctor
     Object::Object(glm::vec3 position)
         : rotation(floatMod(), floatMod(), floatMod()),
+          meshRotation(floatMod(), floatMod(), floatMod()),
+          meshRotationCorrection(floatMod(), floatMod(), floatMod()),
           position(position),
           scale(glm::vec3(1, 1, 1)),
           forward(glm::normalize(glm::vec3(0, 0, -1))),
           up(glm::normalize(glm::vec3(0, 1, 0))),
           right(glm::cross(forward, up)),
           modelMatrix(glm::mat4(1.0f)),
-          redoModelMatrix(false),
+          redoModelMatrix(true),
           mesh(nullptr),
 		  shader(nullptr)
     { }
@@ -33,9 +35,10 @@ namespace ai_npc {
         if (redoModelMatrix) {
             modelMatrix = glm::translate(glm::mat4(1.0f), position);
             modelMatrix = glm::scale(modelMatrix, scale);
-            modelMatrix = glm::rotate(modelMatrix, (float)RADIANS(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
-            modelMatrix = glm::rotate(modelMatrix, (float)RADIANS(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
-            modelMatrix = glm::rotate(modelMatrix, (float)RADIANS(rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            modelMatrix = glm::rotate(modelMatrix, (float)RADIANS(rotation.x + meshRotation.x + meshRotationCorrection.x), glm::vec3(1, 0, 0));
+            modelMatrix = glm::rotate(modelMatrix, (float)RADIANS(rotation.y + meshRotation.y + meshRotationCorrection.y), glm::vec3(0, 1, 0));
+            modelMatrix = glm::rotate(modelMatrix, (float)RADIANS(rotation.z + meshRotation.z + meshRotationCorrection.z), glm::vec3(0, 0, 1));
+            redoModelMatrix = false;
         }
 
         if (!mesh || !shader || !shader->program)
@@ -75,38 +78,32 @@ namespace ai_npc {
     }
 
     void Object::rotateOX(float angle) {
-        rotation.x += angle;
+        rotation.x = angle;
         rotate();
         redoModelMatrix = true;
     }
 
     void Object::rotateOY(float angle) {
-        rotation.y += angle;
+        rotation.y = angle;
         rotate();
         redoModelMatrix = true;
     }
 
     void Object::rotateOZ(float angle) {
-        rotation.z += angle;
+        rotation.z = angle;
         rotate();
         redoModelMatrix = true;
     }
 
     void Object::rotate() {
-        // Build rotation matrix from Euler angles stored in 'rotation'
         glm::mat4 rot = glm::mat4(1.0f);
-        rot = glm::rotate(rot, (float)RADIANS(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
-        rot = glm::rotate(rot, (float)RADIANS(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
-        rot = glm::rotate(rot, (float)RADIANS(rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
+        rot = glm::rotate(rot, (float)RADIANS(rotation.x), glm::vec3(1, 0, 0));
+        rot = glm::rotate(rot, (float)RADIANS(rotation.y), glm::vec3(0, 1, 0));
+        rot = glm::rotate(rot, (float)RADIANS(rotation.z), glm::vec3(0, 0, 1));
 
-        // Rotate direction vectors (use w = 0 for directions)
-        glm::vec4 newForward = rot * glm::vec4(glm::normalize(forward), 1.0f);
-        forward = glm::normalize(glm::vec3(newForward));
-
-        glm::vec4 newRight = rot * glm::vec4(glm::normalize(right), 1.0f);
-        right = glm::normalize(glm::vec3(newRight));
-
-        up = glm::normalize(glm::cross(forward, right));
+        forward = glm::normalize(glm::vec3(rot * glm::vec4(0, 0, -1, 0)));
+        right = glm::normalize(glm::vec3(rot * glm::vec4(1, 0, 0, 0)));
+        up = glm::normalize(glm::vec3(rot * glm::vec4(0, 1, 0, 0)));
     }
 
     void Object::uniformScale(float value) {
@@ -122,6 +119,8 @@ namespace ai_npc {
     glm::vec3 Object::getScale() const { return scale; }
     Mesh *Object::getMesh() { return mesh; }
     Shader *Object::getShader() { return shader; }
+    vec3Mod Object::getMeshRotation() const { return meshRotation; }
+    vec3Mod Object::getMeshRotationCorrection() const { return meshRotationCorrection; }
 
     void Object::setForward(glm::vec3 forward) { this->forward = forward; }
     void Object::setRight(glm::vec3 right) { this->right = right; }
@@ -129,4 +128,12 @@ namespace ai_npc {
     void Object::setPosition(glm::vec3 position) { this->position = position; }
     void Object::setMesh(Mesh *mesh) { this->mesh = mesh; }
     void Object::setShader(Shader *shader) { this->shader = shader; }
+    void Object::setMeshRotation(vec3Mod meshRotation) {
+        this->meshRotation = meshRotation;
+        redoModelMatrix = true;
+    }
+    void Object::setMeshRotationCorrection(vec3Mod meshRotationCorrection) {
+        this->meshRotationCorrection = meshRotationCorrection;
+        redoModelMatrix = true;
+    }
 }
