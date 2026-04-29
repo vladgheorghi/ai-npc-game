@@ -4,6 +4,7 @@
 #include "utils/math_utils.h"
 #include <iostream>
 
+#include "ai_npc_game/utils/floatMod.h"
 
 namespace ai_npc
 {
@@ -16,24 +17,30 @@ namespace ai_npc
             forward     = glm::vec3(0, 0, -1);
             up          = glm::vec3(0, 1, 0);
             right       = glm::vec3(1, 0, 0);
+            yaw = 0.0f;
+            pitch = 0.0f;
+            roll = 0.0f;
             distanceToTarget = 3;
         }
 
-        Camera(const glm::vec3 &position, const glm::vec3 &center, const glm::vec3 &up)
+        Camera(const glm::vec3 &position, const glm::vec3 &center)
         {
-            Set(position, center, up);
+            Set(position, center);
         }
 
         ~Camera()
         { }
 
-        // Update camera
-        void Set(const glm::vec3 &position, const glm::vec3 &center, const glm::vec3 &up)
+        void Set(const glm::vec3& position, const glm::vec3& center)
         {
             this->position = position;
-            forward     = glm::normalize(center - position);
-            right       = glm::cross(forward, up);
-            this->up    = glm::cross(right, forward);
+            glm::vec3 f = glm::normalize(center - position);
+
+            yaw = atan2f(f.x, -f.z);
+            pitch = asinf(glm::clamp(f.y, -1.f, 1.f));
+            roll = 0.f;
+
+            UpdateVectors();
         }
 
         void SetBack(glm::vec3 &position, glm::vec3 &forward, glm::vec3 &right, glm::vec3 &up)
@@ -88,89 +95,73 @@ namespace ai_npc
 
         }
 
-        void RotateFirstPerson_OX(float angle)
+        void RotateFirstPerson_OX(float radians)
         {
-            // TODO(student): Compute the new `forward` and `up` vectors.
-            // Don't forget to normalize the vectors! Use `glm::rotate()`.
-            
-            glm::mat4 RotateWorldOX = glm::rotate(glm::mat4(1.0f), angle, right);
+            pitch += radians;
+            // clamp so you can't flip upside-down
+            pitch = glm::clamp(pitch, -glm::half_pi<float>() + 0.01f,
+                glm::half_pi<float>() - 0.01f);
+            UpdateVectors();
+        }
 
-            // forward
-            glm::vec4 newForward = RotateWorldOX * glm::vec4(forward, 1.0f);
-            forward = glm::normalize(glm::vec3(newForward));
+        void RotateFirstPerson_OY(float radians)
+        {
+            yaw += radians;
+            UpdateVectors();
+        }
 
-            // up
+        void RotateFirstPerson_OZ(float radians)
+        {
+            roll += radians;
+            UpdateVectors();
+        }
+
+        void RotateThirdPerson_OX(float radians)
+        {
+            TranslateForward(distanceToTarget);
+            RotateFirstPerson_OX(radians);
+            TranslateForward(-distanceToTarget);
+        }
+
+        void RotateThirdPerson_OY(float radians)
+        {
+            TranslateForward(distanceToTarget);
+            RotateFirstPerson_OY(radians);
+            TranslateForward(-distanceToTarget);
+        }
+
+        void RotateThirdPerson_OZ(float radians)
+        {
+            TranslateForward(distanceToTarget);
+            RotateFirstPerson_OZ(radians);
+            TranslateForward(-distanceToTarget);
+        }
+
+        void UpdateVectors()
+        {
+            forward = glm::normalize(glm::vec3(
+                cosf(pitch) * sinf(yaw),   // X
+                sinf(pitch),               // Y
+                -cosf(pitch) * cosf(yaw)    // Z
+            ));
+
+            // right stays horizontal (no pitch/roll yet)
+            right = glm::normalize(glm::vec3(cosf(yaw), 0.f, sinf(yaw)));
+
+            // up is perpendicular to both
             up = glm::cross(right, forward);
 
+            // apply roll: rotate right and up around forward
+            if (roll != 0.f) {
+                glm::mat4 r = glm::rotate(glm::mat4(1.f), roll, forward);
+                right = glm::normalize(glm::vec3(r * glm::vec4(right, 0.f)));
+                up = glm::cross(right, forward);
+            }
         }
 
-        void RotateFirstPerson_OY(float angle)
+        void FollowTarget(const glm::vec3& target)
         {
-            // TODO(student): Compute the new `forward`, `up` and `right`
-            // vectors. Use `glm::rotate()`. Don't forget to normalize the
-            // vectors!
-
-            glm::mat4 RotateWorldOY = glm::rotate(glm::mat4(1.0f), angle, glm::vec3(0, 1, 0));
-
-            // forward
-            glm::vec4 newForward = RotateWorldOY * glm::vec4(forward, 1.0f);
-            forward = glm::normalize(glm::vec3(newForward));
-
-            // right
-            glm::vec4 newRight = RotateWorldOY * glm::vec4(right, 1.0f);
-            right = glm::normalize(glm::vec3(newRight));
-
-            // up
-            up = glm::cross(right, forward);
-        }
-
-        void RotateFirstPerson_OZ(float angle)
-        {
-            // TODO(student): Compute the new `right` and `up`. This time,
-            // `forward` stays the same. Use `glm::rotate()`. Don't forget
-            // to normalize the vectors!
-
-            glm::mat4 RotateWorldOZ = glm::rotate(glm::mat4(1.0f), angle, forward);
-
-            // right
-            glm::vec4 newRight = RotateWorldOZ * glm::vec4(right, 1.0f);
-            right = glm::normalize(glm::vec3(newRight));
-
-            // up
-            up = glm::cross(right, forward);
-        }
-
-        void RotateThirdPerson_OX(float angle)
-        {
-            // TODO(student): Rotate the camera in third-person mode around
-            // the OX axis. Use `distanceToTarget` as translation distance.
-
-            TranslateForward(distanceToTarget);
-            RotateFirstPerson_OX(angle);
-            TranslateForward(-distanceToTarget);
-
-        }
-
-        void RotateThirdPerson_OY(float angle)
-        {
-            // TODO(student): Rotate the camera in third-person mode around
-            // the OY axis.
-
-            TranslateForward(distanceToTarget);
-            RotateFirstPerson_OY(angle);
-            TranslateForward(-distanceToTarget);
-
-        }
-
-        void RotateThirdPerson_OZ(float angle)
-        {
-            // TODO(student): Rotate the camera in third-person mode around
-            // the OZ axis.
-
-            TranslateForward(distanceToTarget);
-            RotateFirstPerson_OZ(angle);
-            TranslateForward(-distanceToTarget);
-
+            position = target - forward * distanceToTarget;
         }
 
         glm::mat4 GetViewMatrix() const
@@ -194,10 +185,17 @@ namespace ai_npc
             return position + forward * distanceToTarget;
         }
 
+        float GetRotationOX() const { return pitch; }
+        float GetRotationOY() const { return yaw; }
+        float GetRotationOZ() const { return roll; }
+
      public:
         glm::mat4 projectionMatrix;
         float distanceToTarget;
         glm::vec3 position;
+        float yaw;    // rotation around the world Y axis (left/right)
+        float pitch;  // rotation around the local X axis (up/down)
+        float roll;   // rotation around the local Z axis (tilt)
         glm::vec3 forward;
         glm::vec3 right;
         glm::vec3 up;
