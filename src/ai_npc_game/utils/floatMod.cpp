@@ -6,6 +6,8 @@ floatMod::floatMod(float value, float limit) : value(value), limit(limit) {
     wrapToLimit();
 }
 
+floatMod::floatMod(float value) : floatMod(value, 180.0f) { }
+
 void floatMod::wrapToLimit() {
     // wrap strictly between [-limit, limit], total range is 2x.
     float range = 2.0f * limit;
@@ -100,10 +102,16 @@ floatMod& floatMod::operator*=(float scalar) {
     return *this;
 }
 
-
 // Compound division assignment
 floatMod& floatMod::operator/=(float scalar) {
     this->value /= scalar;
+    wrapToLimit(); // Re-wrap after modifying
+    return *this;
+}
+
+// Assignment
+floatMod& floatMod::operator=(float scalar) {
+    this->value = scalar;
     wrapToLimit(); // Re-wrap after modifying
     return *this;
 }

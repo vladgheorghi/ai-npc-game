@@ -3,6 +3,8 @@
 #include <iostream>
 #include <cmath>
 
+#include "utils/glm_utils.h"
+
 class floatMod {
 private:
     float value;
@@ -12,6 +14,8 @@ private:
 
 public:
     floatMod();
+
+    floatMod(float value);
 
     floatMod(float value, float limit);
 
@@ -67,6 +71,11 @@ public:
     // Compound division assignment
     floatMod& operator/=(float scalar);
 
+    // Assignment
+    floatMod& operator=(float scalar);
+
     // Implicit conversion to float
     operator float() const { return value; }
 };
+
+typedef glm::vec<3, floatMod, glm::packed_highp> vec3Mod;
