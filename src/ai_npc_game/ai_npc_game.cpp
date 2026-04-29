@@ -38,16 +38,21 @@ namespace ai_npc {
             Mesh* characterMesh = new Mesh("player_character");
             characterMesh->LoadMesh(PATH_JOIN(window->props.selfDir, RESOURCE_PATH::MODELS_AI_NPC_GAME), "scene.fbx");
             meshes[characterMesh->GetMeshID()] = characterMesh;
+            characterMesh->anim[0]->mTicksPerSecond = 1000;
         }
 
         {
 			character->setMesh(meshes["player_character"]);
 			character->setShader(shaders["Skinning"]);
-            character->rotateOZ(180);
+            // Visual mesh correction
+            character->setMeshRotationCorrection(vec3Mod(floatMod(0), floatMod(0), floatMod(180)));
+            // Render first keyframe
+            float runningTime = (float)((double)Engine::GetElapsedTime());
+            Animation::BoneTransform(meshes["player_character"], runningTime);
         }
 
         {
-            camera->Set(character->getPosition() + glm::vec3(0, 1, camera->distanceToTarget), character->getPosition() + glm::vec3(0, 1, 0), glm::vec3(0, 1, 0));
+            camera->Set(character->getPosition() + glm::vec3(0, 1, camera->distanceToTarget), character->getPosition() + glm::vec3(0, 1, 0));
 			camera->SetProjectionMatrix(RADIANS(60), window->props.aspectRatio, 0.01f, 200.0f);
         }
     }
@@ -62,11 +67,9 @@ namespace ai_npc {
     {
         ClearScreen();
         
+        glm::vec3 eyeHeight = character->getPosition() + glm::vec3(0, 1, 0);
+        camera->FollowTarget(eyeHeight);
         character->render(camera);
-
-        float runningTime = (float)((double)Engine::GetElapsedTime());
-        Animation::BoneTransform(meshes["player_character"], runningTime);
-
     }
 
     void Game::FrameEnd()
@@ -80,25 +83,32 @@ namespace ai_npc {
     */
     void Game::OnInputUpdate(float deltaTime, int mods)
     {
-        // Treat continuous update based on input
-        if (window->KeyHold(GLFW_KEY_W)) {
+        bool holdW = window->KeyHold(GLFW_KEY_W);
+        bool holdA = window->KeyHold(GLFW_KEY_A);
+        bool holdS = window->KeyHold(GLFW_KEY_S);
+        bool holdD = window->KeyHold(GLFW_KEY_D);
+
+        glm::vec2 inputDirection(0.0f);
+        if (holdW) {
+            inputDirection.y += 1.0f;
+        }
+        if (holdA) {
+            inputDirection.x += 1.0f;
+        }
+        if (holdS) {
+            inputDirection.y -= 1.0f;
+        }
+        if (holdD) {
+            inputDirection.x -= 1.0f;
+        }
+        
+        if (glm::length(inputDirection) > 0.0f) {
+            float angle = DEGREES(atan2f(inputDirection.x, inputDirection.y) - camera->GetRotationOY());
+            character->rotateOY(angle);
+
             character->moveForward(deltaTime);
-            camera->MoveForward(deltaTime * character->getMovementSpeed(), character->getForward());
-        }
-
-        if (window->KeyHold(GLFW_KEY_A)) {
-            character->moveRight(-deltaTime);
-            camera->MoveForward(-deltaTime * character->getMovementSpeed(), character->getRight());
-        }
-
-        if (window->KeyHold(GLFW_KEY_S)) {
-            character->moveForward(-deltaTime);
-			camera->MoveForward(-deltaTime * character->getMovementSpeed(), character->getForward());
-        }
-
-        if (window->KeyHold(GLFW_KEY_D)) {
-            character->moveRight(deltaTime);
-			camera->MoveForward(deltaTime * character->getMovementSpeed(), character->getRight());
+            float runningTime = (float)((double)Engine::GetElapsedTime());
+            Animation::BoneTransform(meshes["player_character"], runningTime);
         }
     }
 
@@ -123,7 +133,7 @@ namespace ai_npc {
         if (window->MouseHold(GLFW_MOUSE_BUTTON_RIGHT))
         {
             camera->RotateThirdPerson_OX(-deltaY * sensivityOY);
-            camera->RotateThirdPerson_OY(-deltaX * sensivityOX);
+            camera->RotateThirdPerson_OY(deltaX * sensivityOX);
         }
     }
 
