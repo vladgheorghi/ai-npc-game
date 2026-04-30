@@ -114,6 +114,13 @@ namespace ai_npc {
             float step = glm::clamp((float)deltaAngle, -rotationSpeed * deltaTime, rotationSpeed * deltaTime);
             facingAngle += step;
 
+			// Allow sprinting by holding the left shift key, which increases movement speed by 2 units/sec
+			if (window->KeyHold(GLFW_KEY_LEFT_SHIFT)) {
+                character->setMovementSpeed(4.5f);
+            } else {
+                character->setMovementSpeed(2.5f);
+            }
+
 			// Move forward in the direction the character is facing
             character->rotateOY(facingAngle);
             character->moveForward(deltaTime);
@@ -139,13 +146,11 @@ namespace ai_npc {
 
     void Game::OnMouseMove(int mouseX, int mouseY, int deltaX, int deltaY)
     {
-        float sensivityOX = 0.001f;
-        float sensivityOY = 0.001f;
         // Add mouse move event
         if (window->MouseHold(GLFW_MOUSE_BUTTON_RIGHT))
         {
-            camera->RotateThirdPerson_OX(-deltaY * sensivityOY);
-            camera->RotateThirdPerson_OY(deltaX * sensivityOX);
+            camera->RotateThirdPerson_OX(-deltaY);
+            camera->RotateThirdPerson_OY(deltaX);
         }
     }
 
@@ -165,6 +170,7 @@ namespace ai_npc {
     void Game::OnMouseScroll(int mouseX, int mouseY, int offsetX, int offsetY)
     {
         // Treat mouse scroll event
+        camera->Zoom(-offsetY);
     }
 
 

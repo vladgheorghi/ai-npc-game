@@ -118,15 +118,17 @@ namespace ai_npc
 
         void RotateThirdPerson_OX(float radians)
         {
+			float sensitivity = 0.002f;
             TranslateForward(distanceToTarget);
-            RotateFirstPerson_OX(radians);
+            RotateFirstPerson_OX(sensitivity * radians);
             TranslateForward(-distanceToTarget);
         }
 
         void RotateThirdPerson_OY(float radians)
         {
+            float sensitivity = 0.002f;
             TranslateForward(distanceToTarget);
-            RotateFirstPerson_OY(radians);
+            RotateFirstPerson_OY(sensitivity * radians);
             TranslateForward(-distanceToTarget);
         }
 
@@ -188,6 +190,14 @@ namespace ai_npc
         float GetRotationOX() const { return pitch; }
         float GetRotationOY() const { return yaw; }
         float GetRotationOZ() const { return roll; }
+
+        void Zoom(float value) {
+            // Set scroll sensitivity
+            float sensitivity = 0.3f;
+
+            // Keep 0.5f <= distanceToTarget <= 10.0f
+            distanceToTarget = glm::clamp(distanceToTarget + sensitivity * value, 0.5f, 10.0f);
+        }
 
      public:
         glm::mat4 projectionMatrix;
