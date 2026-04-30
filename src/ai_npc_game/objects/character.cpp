@@ -15,6 +15,8 @@ namespace ai_npc {
         movementSpeed = 2.5f;
     }
 
+    Character::~Character() = default;
+
     void Character::moveForward(float distance) {
         Object::moveForward(distance * movementSpeed);
     }
@@ -23,7 +25,7 @@ namespace ai_npc {
         Object::moveRight(distance * movementSpeed);
     }
 
-	const char* Character::getName() const { return name; }
+	const char* Character::getName() const { return name.c_str(); }
 	float Character::getHealth() const { return health; }
 	float Character::getDamage() const { return damage; }
     float Character::getMovementSpeed() const { return movementSpeed; }

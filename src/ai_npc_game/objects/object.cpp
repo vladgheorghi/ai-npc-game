@@ -80,19 +80,16 @@ namespace ai_npc {
     void Object::rotateOX(float angle) {
         rotation.x = angle;
         rotate();
-        redoModelMatrix = true;
     }
 
     void Object::rotateOY(float angle) {
         rotation.y = angle;
         rotate();
-        redoModelMatrix = true;
     }
 
     void Object::rotateOZ(float angle) {
         rotation.z = angle;
         rotate();
-        redoModelMatrix = true;
     }
 
     void Object::rotate() {
@@ -104,6 +101,8 @@ namespace ai_npc {
         forward = glm::normalize(glm::vec3(rot * glm::vec4(0, 0, -1, 0)));
         right = glm::normalize(glm::vec3(rot * glm::vec4(1, 0, 0, 0)));
         up = glm::normalize(glm::vec3(rot * glm::vec4(0, 1, 0, 0)));
+
+        redoModelMatrix = true;
     }
 
     void Object::uniformScale(float value) {

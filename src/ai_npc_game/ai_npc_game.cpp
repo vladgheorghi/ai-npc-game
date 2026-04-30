@@ -10,6 +10,7 @@ namespace ai_npc {
         skinningShader = new Shader("Skinning");
         character = new Character(glm::vec3(0, 0, 0));
         camera = new Camera();
+        maxNPCs = 10;
     }
 
 
@@ -63,7 +64,34 @@ namespace ai_npc {
         
         glm::vec3 eyeHeight = character->getPosition() + glm::vec3(0, 1, 0);
         camera->FollowTarget(eyeHeight);
-        character->render(camera);
+        character->render(camera, deltaTimeSeconds);
+
+        if (randInt(0, 100) < 2 && npcs.size() < maxNPCs) {
+            std::string npcID = "npc" + std::to_string(npcs.size());
+            Mesh* npcMesh = new Mesh(npcID);
+            npcMesh->LoadMesh(PATH_JOIN(window->props.selfDir, RESOURCE_PATH::MODELS_AI_NPC_GAME), "scene.fbx");
+            meshes[npcMesh->GetMeshID()] = npcMesh;
+            npcMesh->anim[0]->mTicksPerSecond = 1000;
+
+            NPC* newNPC = new NPC(npcMesh, shaders["Skinning"]);
+            newNPC->setMeshRotationCorrection(Vec3Mod(FloatMod(0), FloatMod(0), FloatMod(180)));
+
+            float runningTime = (float)((double)Engine::GetElapsedTime());
+            Animation::BoneTransform(npcMesh, runningTime);
+            npcs[npcID] = newNPC;
+		}
+
+        if (randInt(0, 1000) < 10 && npcs.size() > 0) {
+            std::string selectedNPCID = "npc" + std::to_string(randInt(0, (int)npcs.size() - 1));
+            if (npcs.count(selectedNPCID) > 0 && !npcs[selectedNPCID]->isMovingToPosition()) {
+                glm::vec3 selectedPosition = glm::vec3(randFloat(-5.0f, 5.0f), 0, randFloat(-5.0f, 5.0f));
+                npcs[selectedNPCID]->moveToPosition(selectedPosition);
+            }
+        }
+
+        for (auto& [npcID, npc] : npcs) {
+            npc->render(camera, deltaTimeSeconds);
+		}
     }
 
     void Game::FrameEnd()

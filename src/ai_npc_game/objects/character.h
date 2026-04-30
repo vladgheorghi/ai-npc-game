@@ -15,7 +15,7 @@ namespace ai_npc
     public:
     private:
     protected:
-        const char* name;
+        std::string name;
         float health;
         float damage;
         float movementSpeed;
@@ -23,8 +23,6 @@ namespace ai_npc
         // class methods
     public:
         Character();
-        // Constructor with random spawn position
-		Character(const char* name, float health, float damage);
         Character(glm::vec3 position);
         Character(glm::vec3 position, Mesh* mesh, Shader* shader);
         ~Character();

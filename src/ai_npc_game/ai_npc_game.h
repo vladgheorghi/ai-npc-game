@@ -4,6 +4,7 @@
 
 #include "animation.h"
 #include "ai_npc_game/objects/character.h"
+#include "ai_npc_game/objects/npc.h"
 #include "ai_npc_game/camera/camera.h"
 
 
@@ -37,10 +38,15 @@ namespace ai_npc
         // Class variables
         float facingAngle;
 
+		std::unordered_map<std::string, NPC*> npcs;
+        unsigned int maxNPCs;
+
         Shader *skinningShader;
 
         Character *character;
 
         Camera* camera;
+
+
     };
 }   // namespace ai_npc
