@@ -64,7 +64,7 @@ namespace ai_npc {
         
         glm::vec3 eyeHeight = character->getPosition() + glm::vec3(0, 1, 0);
         camera->FollowTarget(eyeHeight);
-        character->render(camera, deltaTimeSeconds);
+        character->render(camera);
 
         if (randInt(0, 100) < 2 && npcs.size() < maxNPCs) {
             std::string npcID = "npc" + std::to_string(npcs.size());
