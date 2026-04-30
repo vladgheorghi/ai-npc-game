@@ -12,11 +12,11 @@ set(target_name GFXFramework)
 project(${target_name} C CXX)
 
 
-# Use C99 and C++11
+# Use C99 and C++17
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 
