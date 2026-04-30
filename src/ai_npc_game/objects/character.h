@@ -1,11 +1,11 @@
 #pragma once
 
-#include "core/gpu/shader.h"
-#include "core/gpu/mesh.h"
-#include "utils/glm_utils.h"
-#include "utils/math_utils.h"
-
 #include "object.h"
+
+#include "utils/glm_utils.h"
+
+#include "core/gpu/mesh.h"
+#include "core/gpu/shader.h"
 
 namespace ai_npc
 {
@@ -15,11 +15,16 @@ namespace ai_npc
     public:
     private:
     protected:
+        const char* name;
+        float health;
+        float damage;
         float movementSpeed;
 
         // class methods
     public:
         Character();
+        // Constructor with random spawn position
+		Character(const char* name, float health, float damage);
         Character(glm::vec3 position);
         Character(glm::vec3 position, Mesh* mesh, Shader* shader);
         ~Character();
@@ -27,8 +32,13 @@ namespace ai_npc
         void moveForward(float distance) override;
         void moveRight(float distance) override;
 
+		const char* getName() const;
+        float getHealth() const;
+        float getDamage() const;
         float getMovementSpeed() const;
 
+		void setHealth(float health);
+		void setDamage(float damage);
         void setMovementSpeed(float movementSpeed);
     private:
     protected:

@@ -1,17 +1,10 @@
 #include "ai_npc_game.h"
 
-#include <vector>
-#include <iostream>
 
 namespace ai_npc {
 
     Game::Game()
     {
-        // TODO(student): Never forget to initialize class variables!
-        clear_color = glm::vec3(0);
-        mesh_choices = { "box.obj", "teapot.obj", "sphere.obj" };
-        mesh_index = 0;
-        mesh_pos = glm::vec3(3, 0, 3);
         facingAngle = 0.0f;
 
         skinningShader = new Shader("Skinning");
@@ -46,7 +39,7 @@ namespace ai_npc {
 			character->setMesh(meshes["player_character"]);
 			character->setShader(shaders["Skinning"]);
             // Visual mesh correction
-            character->setMeshRotationCorrection(vec3Mod(floatMod(0), floatMod(0), floatMod(180)));
+            character->setMeshRotationCorrection(Vec3Mod(FloatMod(0), FloatMod(0), FloatMod(180)));
             // Render first keyframe
             float runningTime = (float)((double)Engine::GetElapsedTime());
             Animation::BoneTransform(meshes["player_character"], runningTime);
@@ -106,7 +99,7 @@ namespace ai_npc {
 
             // Shortest angular delta, clamped to [-180, 180]
             // (i.e. calculate how much rotation is left until reaching `angle` based on current steps added to `facingAngle`)
-            floatMod deltaAngle = angle - facingAngle;
+            FloatMod deltaAngle = angle - facingAngle;
 
             // Rotate toward target at a fixed speed (degrees/sec)
             float rotationSpeed = 600.f;

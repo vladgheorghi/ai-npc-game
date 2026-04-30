@@ -1,5 +1,7 @@
 #pragma once
 
+#include "components/simple_scene.h"
+
 #include "animation.h"
 #include "ai_npc_game/objects/character.h"
 #include "ai_npc_game/camera/camera.h"
@@ -33,10 +35,6 @@ namespace ai_npc
          void OnWindowResize(int width, int height) override;
 
         // Class variables
-        glm::vec3 clear_color;
-        std::vector<std::string> mesh_choices;
-        size_t mesh_index;
-        glm::vec3 mesh_pos;
         float facingAngle;
 
         Shader *skinningShader;

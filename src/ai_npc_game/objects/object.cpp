@@ -7,9 +7,9 @@ namespace ai_npc {
 
     // Initialize rotation in the member initializer list to avoid calling a deleted/default ctor
     Object::Object(glm::vec3 position)
-        : rotation(floatMod(), floatMod(), floatMod()),
-          meshRotation(floatMod(), floatMod(), floatMod()),
-          meshRotationCorrection(floatMod(), floatMod(), floatMod()),
+        : rotation(FloatMod(), FloatMod(), FloatMod()),
+          meshRotation(FloatMod(), FloatMod(), FloatMod()),
+          meshRotationCorrection(FloatMod(), FloatMod(), FloatMod()),
           position(position),
           scale(glm::vec3(1, 1, 1)),
           forward(glm::normalize(glm::vec3(0, 0, -1))),
@@ -119,8 +119,8 @@ namespace ai_npc {
     glm::vec3 Object::getScale() const { return scale; }
     Mesh *Object::getMesh() { return mesh; }
     Shader *Object::getShader() { return shader; }
-    vec3Mod Object::getMeshRotation() const { return meshRotation; }
-    vec3Mod Object::getMeshRotationCorrection() const { return meshRotationCorrection; }
+    Vec3Mod Object::getMeshRotation() const { return meshRotation; }
+    Vec3Mod Object::getMeshRotationCorrection() const { return meshRotationCorrection; }
 
     void Object::setForward(glm::vec3 forward) { this->forward = forward; }
     void Object::setRight(glm::vec3 right) { this->right = right; }
@@ -128,11 +128,11 @@ namespace ai_npc {
     void Object::setPosition(glm::vec3 position) { this->position = position; }
     void Object::setMesh(Mesh *mesh) { this->mesh = mesh; }
     void Object::setShader(Shader *shader) { this->shader = shader; }
-    void Object::setMeshRotation(vec3Mod meshRotation) {
+    void Object::setMeshRotation(Vec3Mod meshRotation) {
         this->meshRotation = meshRotation;
         redoModelMatrix = true;
     }
-    void Object::setMeshRotationCorrection(vec3Mod meshRotationCorrection) {
+    void Object::setMeshRotationCorrection(Vec3Mod meshRotationCorrection) {
         this->meshRotationCorrection = meshRotationCorrection;
         redoModelMatrix = true;
     }

@@ -1,7 +1,5 @@
 #include "animation.h"
 
-#include "utils/glm_utils.h"
-#include "utils/math_utils.h"
 
 namespace ai_npc {
     void Animation::BoneTransform(Mesh* mesh, float timeInSeconds)
