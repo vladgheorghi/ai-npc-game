@@ -12,6 +12,7 @@ namespace ai_npc {
         mesh_choices = { "box.obj", "teapot.obj", "sphere.obj" };
         mesh_index = 0;
         mesh_pos = glm::vec3(3, 0, 3);
+        facingAngle = 0.0f;
 
         skinningShader = new Shader("Skinning");
         character = new Character(glm::vec3(0, 0, 0));
@@ -83,30 +84,41 @@ namespace ai_npc {
     */
     void Game::OnInputUpdate(float deltaTime, int mods)
     {
-        bool holdW = window->KeyHold(GLFW_KEY_W);
-        bool holdA = window->KeyHold(GLFW_KEY_A);
-        bool holdS = window->KeyHold(GLFW_KEY_S);
-        bool holdD = window->KeyHold(GLFW_KEY_D);
-
+		// Determine input direction based on WASD keys (e.g. W + A = forward-left, direction will be at 45 degrees)
         glm::vec2 inputDirection(0.0f);
-        if (holdW) {
+        if (window->KeyHold(GLFW_KEY_W)) {
             inputDirection.y += 1.0f;
         }
-        if (holdA) {
+        if (window->KeyHold(GLFW_KEY_A)) {
             inputDirection.x += 1.0f;
         }
-        if (holdS) {
+        if (window->KeyHold(GLFW_KEY_S)) {
             inputDirection.y -= 1.0f;
         }
-        if (holdD) {
+        if (window->KeyHold(GLFW_KEY_D)) {
             inputDirection.x -= 1.0f;
         }
         
+		// If there's input
         if (glm::length(inputDirection) > 0.0f) {
+			// Calculate the angle to rotate toward, relative to camera's forward direction
             float angle = DEGREES(atan2f(inputDirection.x, inputDirection.y) - camera->GetRotationOY());
-            character->rotateOY(angle);
 
+            // Shortest angular delta, clamped to [-180, 180]
+            // (i.e. calculate how much rotation is left until reaching `angle` based on current steps added to `facingAngle`)
+            floatMod deltaAngle = angle - facingAngle;
+
+            // Rotate toward target at a fixed speed (degrees/sec)
+            float rotationSpeed = 600.f;
+			// Clamp the rotation step to either subtract the max rotation speed or add it, depending on the sign of `deltaAngle`
+            float step = glm::clamp((float)deltaAngle, -rotationSpeed * deltaTime, rotationSpeed * deltaTime);
+            facingAngle += step;
+
+			// Move forward in the direction the character is facing
+            character->rotateOY(facingAngle);
             character->moveForward(deltaTime);
+
+			// Update animation based on elapsed time
             float runningTime = (float)((double)Engine::GetElapsedTime());
             Animation::BoneTransform(meshes["player_character"], runningTime);
         }

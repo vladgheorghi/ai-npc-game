@@ -37,6 +37,7 @@ namespace ai_npc
         std::vector<std::string> mesh_choices;
         size_t mesh_index;
         glm::vec3 mesh_pos;
+        float facingAngle;
 
         Shader *skinningShader;
 
