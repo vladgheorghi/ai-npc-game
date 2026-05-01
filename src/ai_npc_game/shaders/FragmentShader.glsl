@@ -6,6 +6,8 @@ in vec2 texture_coord;
 // received from vertex shader
 in vec3 normal;
 
+in vec3 debug_color;
+
 // Uniform properties
 uniform sampler2D text;
 
@@ -21,5 +23,5 @@ void main()
         discard;
     }
 
-    out_color = color;
+    out_color = vec4(debug_color, 1.0);
 }
