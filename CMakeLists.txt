@@ -16,7 +16,7 @@ project(${target_name} C CXX)
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 
@@ -35,11 +35,42 @@ if (NOT CMAKE_SYSTEM_NAME STREQUAL "Windows")
     find_package(GLEW REQUIRED)
     find_package(PkgConfig REQUIRED)
     pkg_search_module(GLFW REQUIRED glfw3)
-    find_package(assimp REQUIRED)
     find_package(spdlog REQUIRED)
     find_package(Freetype REQUIRED)
 endif()
 
+# Pin assimp to the same commit as the Windows prebuilt (525213a0, ~v5.0/5.1).
+# The animation key structs (aiVectorKey, aiQuatKey) gained a new mInterpolation
+# field in 6.0, which silently breaks our skeletal animation parsing if headers
+# and library disagree on struct size. On macOS we build from source at the
+# pinned commit; on Linux we accept the system package as long as it is < 6.
+if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    include(FetchContent)
+    set(ASSIMP_BUILD_TESTS         OFF CACHE BOOL "" FORCE)
+    set(ASSIMP_BUILD_ASSIMP_TOOLS  OFF CACHE BOOL "" FORCE)
+    set(ASSIMP_BUILD_SAMPLES       OFF CACHE BOOL "" FORCE)
+    set(ASSIMP_INSTALL             OFF CACHE BOOL "" FORCE)
+    set(ASSIMP_WARNINGS_AS_ERRORS  OFF CACHE BOOL "" FORCE)
+    set(BUILD_SHARED_LIBS          ON  CACHE BOOL "" FORCE)
+    FetchContent_Declare(assimp
+        GIT_REPOSITORY https://github.com/assimp/assimp.git
+        GIT_TAG        525213a0456c4be3c61923d5462976916df6d06a
+    )
+    FetchContent_MakeAvailable(assimp)
+    # assimp's CMake hard-codes -Werror on the assimp target (not gated by
+    # ASSIMP_WARNINGS_AS_ERRORS at this commit). Newer Apple Clang flags valid
+    # warnings in this 4-year-old source that upstream tried to silence with
+    # pragmas that no longer take effect. Drop -Werror on the dependency only;
+    # warnings are still printed, just non-fatal.
+    target_compile_options(assimp PRIVATE -Wno-error)
+elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    find_package(assimp REQUIRED)
+    if (DEFINED assimp_VERSION AND assimp_VERSION VERSION_GREATER_EQUAL 6.0)
+        message(FATAL_ERROR
+            "Found assimp ${assimp_VERSION}; this project pins to the 5.x ABI "
+            "(aiVectorKey/aiQuatKey layout changed in 6.0). Install assimp 5.x.")
+    endif()
+endif()
 
 # Set options
 option(AI_NPC_GAME "Build AI NPC game source files" ON)
@@ -331,5 +362,18 @@ endforeach()
 if (NOT USE_DEV_COMPONENTS)
     add_custom_command(TARGET ${target_name} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${GFXF_ROOT_DIR}/deps/prebuilt/GFXComponents/${__cmake_arch}/GFXComponents.${__cmake_shared_suffix}" "${__target_dir}"
+    )
+endif()
+
+# On macOS the assimp dylib is produced by FetchContent in the build tree.
+# CMAKE_INSTALL_RPATH is @executable_path, so copy the dylib next to the
+# target after every build to make it resolvable at run time. Use
+# TARGET_SONAME_FILE so the copied file matches the install_name the
+# loader actually queries (e.g. libassimpd.5.dylib), not the fully
+# versioned path TARGET_FILE points at (e.g. libassimpd.5.4.0.dylib).
+if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    add_custom_command(TARGET ${target_name} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "$<TARGET_SONAME_FILE:assimp>" "${__target_dir}"
     )
 endif()

@@ -75,6 +75,7 @@ namespace ai_npc {
 
             NPC* newNPC = new NPC(npcMesh, shaders["Skinning"]);
             newNPC->setMeshRotationCorrection(Vec3Mod(FloatMod(0), FloatMod(0), FloatMod(180)));
+            newNPC->uniformScale(0.01f);
 
             float runningTime = (float)((double)Engine::GetElapsedTime());
             Animation::BoneTransform(npcMesh, runningTime);
