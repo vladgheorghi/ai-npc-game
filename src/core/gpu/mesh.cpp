@@ -1,9 +1,11 @@
 #include "core/gpu/mesh.h"
 
 #include <utility>
+#include <cmath>
 
 #include "assimp/Importer.hpp"          // C++ importer interface
 #include "assimp/postprocess.h"         // Post processing flags
+#include <glm/gtc/matrix_transform.hpp>
 
 #include "core/gpu/gpu_buffers.h"
 #include "core/gpu/texture2D.h"
@@ -120,7 +122,24 @@ bool Mesh::LoadMesh(const std::string& fileLocation,
     const aiScene* pScene = Importer.ReadFile(file, flags);
 
     if (pScene) {
-        m_GlobalInverseTransform = glm::inverse(ConvertMatrix(pScene->mRootNode->mTransformation));
+        const auto& rootMat = pScene->mRootNode->mTransformation;
+        m_GlobalInverseTransform = glm::inverse(ConvertMatrix(rootMat));
+
+        // Detect Assimp's Y-up→Z-up conversion baked into the scene root
+        // (newer Assimp versions do this for glTF). If present, the bone matrices
+        // end up in Z-up internal frame and need a -90°X correction to render
+        // against Y-up vertex buffers. On older Assimp / FBX where the root is
+        // identity (or already cancels out properly), this stays identity.
+        const float eps = 1e-3f;
+        const bool isYupToZupRoot =
+            std::abs(rootMat.a1 - 1.0f) < eps &&
+            std::abs(rootMat.b3 - 1.0f) < eps &&
+            std::abs(rootMat.c2 + 1.0f) < eps;
+
+        if (isYupToZupRoot) {
+            m_AxisFix = glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1, 0, 0));
+        }
+
         return InitFromScene(pScene);
     }
 

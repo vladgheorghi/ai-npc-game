@@ -119,6 +119,7 @@ class Mesh
     std::vector<BoneInfo> m_BoneInfo;
     std::map<std::string, int> m_BoneMapping;
     glm::mat4 m_GlobalInverseTransform;
+    glm::mat4 m_AxisFix = glm::mat4(1.0f);
     aiAnimation** anim;
     aiNode* rootNode;
     int m_NumBones = 0;

@@ -59,8 +59,8 @@ namespace ai_npc {
             // Bring the result back into local space.
 
             unsigned int BoneIndex = mesh->m_BoneMapping[NodeName];
-            mesh->m_BoneInfo[BoneIndex].finalTransformation = mesh->m_GlobalInverseTransform * GlobalTransformation *
-                mesh->m_BoneInfo[BoneIndex].boneOffset;
+            mesh->m_BoneInfo[BoneIndex].finalTransformation = mesh->m_AxisFix * mesh->m_GlobalInverseTransform *
+    GlobalTransformation * mesh->m_BoneInfo[BoneIndex].boneOffset;
         }
 
         // Compute the transformations of the children of the current node
