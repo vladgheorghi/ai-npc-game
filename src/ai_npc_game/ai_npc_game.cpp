@@ -31,7 +31,7 @@ namespace ai_npc {
 
         {
             Mesh* characterMesh = new Mesh("player_character");
-            characterMesh->LoadMesh(PATH_JOIN(window->props.selfDir, RESOURCE_PATH::MODELS_AI_NPC_GAME), "scene.fbx");
+            characterMesh->LoadMesh(PATH_JOIN(window->props.selfDir, RESOURCE_PATH::MODELS_AI_NPC_GAME), "scene.gltf");
             meshes[characterMesh->GetMeshID()] = characterMesh;
             characterMesh->anim[0]->mTicksPerSecond = 1000;
         }
@@ -40,7 +40,8 @@ namespace ai_npc {
 			character->setMesh(meshes["player_character"]);
 			character->setShader(shaders["Skinning"]);
             // Visual mesh correction
-            character->setMeshRotationCorrection(Vec3Mod(FloatMod(0), FloatMod(0), FloatMod(180)));
+            // character->setMeshRotationCorrection(Vec3Mod(FloatMod(0), FloatMod(0), FloatMod(180)));
+            // character->uniformScale(0.01f);
             // Render first keyframe
             float runningTime = (float)((double)Engine::GetElapsedTime());
             Animation::BoneTransform(meshes["player_character"], runningTime);
@@ -69,12 +70,13 @@ namespace ai_npc {
         if (randInt(0, 100) < 2 && npcs.size() < maxNPCs) {
             std::string npcID = "npc" + std::to_string(npcs.size());
             Mesh* npcMesh = new Mesh(npcID);
-            npcMesh->LoadMesh(PATH_JOIN(window->props.selfDir, RESOURCE_PATH::MODELS_AI_NPC_GAME), "scene.fbx");
+            npcMesh->LoadMesh(PATH_JOIN(window->props.selfDir, RESOURCE_PATH::MODELS_AI_NPC_GAME), "scene.gltf");
             meshes[npcMesh->GetMeshID()] = npcMesh;
             npcMesh->anim[0]->mTicksPerSecond = 1000;
 
             NPC* newNPC = new NPC(npcMesh, shaders["Skinning"]);
-            newNPC->setMeshRotationCorrection(Vec3Mod(FloatMod(0), FloatMod(0), FloatMod(180)));
+            // newNPC->setMeshRotationCorrection(Vec3Mod(FloatMod(0), FloatMod(0), FloatMod(180)));
+            // newNPC->uniformScale(0.01f);
 
             float runningTime = (float)((double)Engine::GetElapsedTime());
             Animation::BoneTransform(npcMesh, runningTime);

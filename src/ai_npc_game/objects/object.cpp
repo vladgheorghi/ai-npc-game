@@ -106,7 +106,7 @@ namespace ai_npc {
     }
 
     void Object::uniformScale(float value) {
-        scale += value;
+        scale = glm::vec3(value);
         redoModelMatrix = true;
     }
 

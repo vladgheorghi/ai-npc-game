@@ -114,7 +114,7 @@ bool Mesh::LoadMesh(const std::string& fileLocation,
 
     Assimp::Importer Importer;
 
-    unsigned int flags = aiProcess_GenSmoothNormals | aiProcess_FlipUVs;
+    unsigned int flags = aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_LimitBoneWeights;;
     if (glDrawMode == GL_TRIANGLES) flags |= aiProcess_Triangulate;
 
     const aiScene* pScene = Importer.ReadFile(file, flags);
