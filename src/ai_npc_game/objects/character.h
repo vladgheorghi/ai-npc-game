@@ -1,6 +1,8 @@
 #pragma once
 
 #include "object.h"
+#include "npc.h"
+#include "ai_npc_game/hud/chat.h"
 
 #include "utils/glm_utils.h"
 
@@ -11,7 +13,7 @@ namespace ai_npc
 {
     class Character : public Object
     {
-        // class fields
+    // class fields
     public:
     private:
     protected:
@@ -19,8 +21,11 @@ namespace ai_npc
         float health;
         float damage;
         float movementSpeed;
+        float interactRadius;
 
-        // class methods
+        Character* talkingTo;
+
+    // class methods
     public:
         Character();
         Character(glm::vec3 position);
@@ -29,11 +34,16 @@ namespace ai_npc
 
         void moveForward(float distance) override;
         void moveRight(float distance) override;
+        bool isNearby(Object* object);
+        virtual void talkTo(NPC* npc, Chat* chat);
+        bool isTalking();
+        void stopTalking();
 
 		const char* getName() const;
         float getHealth() const;
         float getDamage() const;
         float getMovementSpeed() const;
+        float getInteractRadius() const;
 
 		void setHealth(float health);
 		void setDamage(float damage);

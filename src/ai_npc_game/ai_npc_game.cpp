@@ -103,16 +103,21 @@ namespace ai_npc {
         ImGui::Text("[Enter] Talk to NPC");
         ImGui::End();
 
-        // Chat panel - toggled with Enter
-        chat->ShowChat();
-
         if (randInt(0, 1000) < 10 && npcs.size() > 0) {
             std::string selectedNPCID = "npc" + std::to_string(randInt(0, (int)npcs.size() - 1));
-            if (npcs.count(selectedNPCID) > 0 && !npcs[selectedNPCID]->isMovingToPosition()) {
+            if (npcs.count(selectedNPCID) > 0 && !npcs[selectedNPCID]->isMovingToPosition() && !npcs[selectedNPCID]->isTalking()) {
                 glm::vec3 selectedPosition = glm::vec3(randFloat(-5.0f, 5.0f), 0, randFloat(-5.0f, 5.0f));
                 npcs[selectedNPCID]->moveToPosition(selectedPosition);
             }
         }
+
+        for (auto& [npcID, npc] : npcs) {
+            if (npc->isNearby(player) && chat->show && !npc->isTalking()) {
+                player->talkTo(npc, chat);
+                chat->showChat({player->getName(), npc->getName()}, player->getName());
+                break;
+            }
+		}
 
         for (auto& [npcID, npc] : npcs) {
             npc->render(camera, deltaTimeSeconds);
@@ -194,7 +199,16 @@ namespace ai_npc {
 
         // Toggle chat on Enter press
         if (key == GLFW_KEY_ENTER) {
-            if (!chat->show) {
+            for (auto& [npcID, npc] : npcs) {
+                if (npc->isNearby(player)) {
+                    chat->canOpen = true;
+                    break;
+                } else {
+                    chat->canOpen = false;
+                }
+            }
+
+            if (!chat->show && chat->canOpen) {
                 chat->show = true;
                 chat->focusInput = true;
             } else {

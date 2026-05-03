@@ -29,6 +29,8 @@ namespace ai_npc
         void moveToPosition(glm::vec3 position);
         bool isMovingToPosition() const;
         void render(Camera* camera, float deltaTimeSeconds);
+        void talkTo(Character *character);
+        void lookAt(glm::vec3 position);
     private:
         void updatePosition(float deltaTimeSeconds);
     protected:

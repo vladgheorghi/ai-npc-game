@@ -7,16 +7,13 @@ namespace ai_npc {
         playerInput[0] = '\0';
     }
 
-    void Chat::ShowChat() {
-        if (!show) {
-            return;
-        }
+    void Chat::showChat(const std::set<std::string> &participants, const std::string playerName) {
+        Conversation *conversation = getConversation(participants);
 
         ImGui::SetNextWindowSize(ImVec2(520, 160), ImGuiCond_FirstUseEver);
         ImGui::Begin("Conversation", &show);
-        ImGui::TextWrapped("NPC: Hello traveler, what brings you here?");
-        for (auto& chatEntry : chatHistory) {
-            ImGui::TextWrapped(chatEntry.c_str());
+        for (auto& message : conversation->messages) {
+            ImGui::TextWrapped("%s: %s", message.sender.c_str(), message.text.c_str());
         }
         ImGui::Separator();
 
@@ -33,12 +30,23 @@ namespace ai_npc {
         if (ImGui::Button("Send") || submitted)
         {
             if (playerInput[0] != '\0') {
-                chatHistory.push_back(std::string("Player: ") + playerInput);
+                conversation->messages.push_back({playerName, std::string(playerInput)});
                 playerInput[0] = '\0';
             } else {
                 show = false;  // Enter on empty input closes the chat
             }
         }
         ImGui::End();
+    }
+
+    Conversation* Chat::getConversation(const std::set<std::string>& participants) {
+        std::string k = Conversation::key(participants);
+        // Create new conversation if it doesn't exists
+        if (conversations.find(k) == conversations.end()) {
+            Conversation conv;
+            conv.participants = participants;
+            conversations[k] = conv;
+        }
+        return &conversations[k];
     }
 }
