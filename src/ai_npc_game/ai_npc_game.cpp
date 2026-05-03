@@ -111,13 +111,14 @@ namespace ai_npc {
             }
         }
 
-        for (auto& [npcID, npc] : npcs) {
-            if (npc->isNearby(player) && chat->show && !npc->isTalking()) {
-                player->talkTo(npc, chat);
-                chat->showChat({player->getName(), npc->getName()}, player->getName());
-                break;
-            }
-		}
+        if (chat->show && player->isTalking()) {
+            Character* partner = player->getTalkingTo();
+            chat->showChat({ player->getName(), partner->getName() }, player->getName());
+        }
+
+        if (!chat->show && player->isTalking()) {
+            player->stopTalking();
+        }
 
         for (auto& [npcID, npc] : npcs) {
             npc->render(camera, deltaTimeSeconds);
@@ -199,20 +200,20 @@ namespace ai_npc {
 
         // Toggle chat on Enter press
         if (key == GLFW_KEY_ENTER) {
-            for (auto& [npcID, npc] : npcs) {
-                if (npc->isNearby(player)) {
-                    chat->canOpen = true;
-                    break;
-                } else {
-                    chat->canOpen = false;
-                }
-            }
-
-            if (!chat->show && chat->canOpen) {
-                chat->show = true;
-                chat->focusInput = true;
-            } else {
+            if (player->isTalking()) {
                 chat->show = false;
+                player->stopTalking();
+            } else {
+                for (auto& [id, npc] : npcs) {
+                    if (npc->isNearby(player) && !npc->isTalking()) {
+                        player->talkTo(npc, chat);
+                        if (player->isTalking()) {
+                            chat->show = true;
+                            chat->focusInput = true;
+                        }
+                        break;
+                    }
+                }
             }
         }
     }

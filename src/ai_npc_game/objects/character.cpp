@@ -1,4 +1,6 @@
 #include "character.h"
+#include "npc.h"
+#include "ai_npc_game/hud/chat.h"
 
 namespace ai_npc {
     Character::Character(glm::vec3 position) : Object(position) {
@@ -34,14 +36,12 @@ namespace ai_npc {
     }
 
     void Character::talkTo(NPC* npc, Chat* chat) {
-        if (!npc->isNearby(this) || npc->isTalking() || !chat->canOpen) {
+        if (!npc->isNearby(this) || npc->isTalking()) {
             return;
         }
 
-        chat->showChat({getName(), npc->getName()}, getName());
-
-        talkingTo = npc;
         npc->talkTo(this);
+        talkingTo = npc;
     }
 
     bool Character::isTalking() {
@@ -49,6 +49,7 @@ namespace ai_npc {
     }
 
     void Character::stopTalking() {
+        if (talkingTo == nullptr) return;
         talkingTo->talkingTo = nullptr;
         talkingTo = nullptr;
     }
@@ -58,6 +59,7 @@ namespace ai_npc {
 	float Character::getDamage() const { return damage; }
     float Character::getMovementSpeed() const { return movementSpeed; }
     float Character::getInteractRadius() const { return interactRadius; }
+    Character* Character::getTalkingTo() const { return talkingTo; }
 
     void Character::setHealth(float health) { this->health = health; }
     void Character::setDamage(float damage) { this->damage = damage; }

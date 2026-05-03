@@ -37,7 +37,6 @@ namespace ai_npc {
         public:
             bool show;
             bool focusInput;
-            bool canOpen;
         private:
             char playerInput[256];
             std::unordered_map<std::string, Conversation> conversations;

@@ -1,8 +1,6 @@
 #pragma once
 
 #include "object.h"
-#include "npc.h"
-#include "ai_npc_game/hud/chat.h"
 
 #include "utils/glm_utils.h"
 
@@ -11,6 +9,9 @@
 
 namespace ai_npc
 {
+    class NPC;
+    class Chat;
+
     class Character : public Object
     {
     // class fields
@@ -44,6 +45,7 @@ namespace ai_npc
         float getDamage() const;
         float getMovementSpeed() const;
         float getInteractRadius() const;
+        Character* getTalkingTo() const;
 
 		void setHealth(float health);
 		void setDamage(float damage);

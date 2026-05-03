@@ -67,7 +67,7 @@ namespace ai_npc
 	}
 
     void NPC::lookAt(glm::vec3 position) {
-        float targetAngle = DEGREES(atan2f(this->position.x - selectedPosition.x, this->position.z - selectedPosition.z));
+        float targetAngle = DEGREES(atan2f(this->position.x - position.x, this->position.z - position.z));
         degreesLeftToRotate = targetAngle - (float)rotation.y;
     }
 

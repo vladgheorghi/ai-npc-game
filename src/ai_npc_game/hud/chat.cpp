@@ -11,7 +11,13 @@ namespace ai_npc {
         Conversation *conversation = getConversation(participants);
 
         ImGui::SetNextWindowSize(ImVec2(520, 160), ImGuiCond_FirstUseEver);
-        ImGui::Begin("Conversation", &show);
+        std::string title = "Conversation with ";
+        for (const auto& p : participants) {
+            if (p != playerName) {
+                title += p;
+            }
+        }
+        ImGui::Begin(title.c_str(), &show);
         for (auto& message : conversation->messages) {
             ImGui::TextWrapped("%s: %s", message.sender.c_str(), message.text.c_str());
         }
