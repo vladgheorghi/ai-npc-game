@@ -41,8 +41,4 @@ namespace ai_npc {
         }
         ImGui::End();
     }
-
-    void Chat::SendMessage(std::string message) {
-        chatHistory.push_back(message);
-    }
 }

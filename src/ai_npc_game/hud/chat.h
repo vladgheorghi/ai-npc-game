@@ -10,7 +10,6 @@ namespace ai_npc {
             Chat();
             ~Chat();
             void ShowChat();
-            void SendMessage(std::string message); 
         private:
         protected:
 
