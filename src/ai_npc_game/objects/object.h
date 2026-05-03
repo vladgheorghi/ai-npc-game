@@ -17,8 +17,8 @@ namespace ai_npc
     private:
     protected:
     glm::vec3 forward;
-    glm::vec3 right;
     glm::vec3 up;
+    glm::vec3 right;
     
     glm::vec3 position;
     Vec3Mod rotation;
@@ -40,9 +40,9 @@ namespace ai_npc
         Object();
         Object(glm::vec3 position);
         Object(glm::vec3 position, Mesh *mesh, Shader *shader);
-        ~Object();
+        virtual ~Object() = default;
 
-        void render(Camera *camera);
+        void render(Camera* camera);
 
         virtual void moveForward(float distance);
         virtual void moveRight(float distance);

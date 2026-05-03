@@ -56,7 +56,7 @@ namespace ai_npc
         }
     }
 
-    void NPC::render(Camera *camera, float deltaTimeSeconds) {
+    void NPC::render(Camera* camera, float deltaTimeSeconds) {
         updatePosition(deltaTimeSeconds);
 
         Character::render(camera);

@@ -4,23 +4,17 @@
 namespace ai_npc {
 
     Game::Game()
-    {
-        facingAngle = 0.0f;
-
-        skinningShader = new Shader("Skinning");
-        player = new Character(glm::vec3(0, 0, 0));
-        camera = new Camera();
-        maxNPCs = 10;
-
-        imguiLayer = new gfxc::ImGuiLayer();
-        chat = new Chat();
-    }
+    : facingAngle(0.0f),
+    maxNPCs(10),
+    nextNpcId(0),
+    skinningShader(new Shader("Skinning")),
+    player(std::make_unique<Character>(glm::vec3(0))),
+    camera(std::make_unique<Camera>()),
+    imguiLayer(std::make_unique<gfxc::ImGuiLayer>()),
+    chat(std::make_unique<Chat>()) {}
 
 
-    Game::~Game()
-    {
-        delete imguiLayer;
-    }
+    Game::~Game() = default;
 
 
     void Game::Init()
@@ -73,22 +67,21 @@ namespace ai_npc {
         
         glm::vec3 eyeHeight = player->getPosition() + glm::vec3(0, 1, 0);
         camera->FollowTarget(eyeHeight);
-        player->render(camera);
+        player->render(camera.get());
 
         if (randInt(0, 100) < 2 && npcs.size() < maxNPCs) {
-            std::string npcID = "npc" + std::to_string(npcs.size());
+            std::string npcID = "npc" + std::to_string(nextNpcId++);
             Mesh* npcMesh = new Mesh(npcID);
             npcMesh->LoadMesh(PATH_JOIN(window->props.selfDir, RESOURCE_PATH::MODELS_AI_NPC_GAME), "scene.fbx");
             meshes[npcMesh->GetMeshID()] = npcMesh;
             npcMesh->anim[0]->mTicksPerSecond = 1000;
 
-            NPC* newNPC = new NPC(npcMesh, shaders["Skinning"]);
+            auto newNPC = std::make_unique<NPC>(npcMesh, shaders["Skinning"]);
             newNPC->setMeshRotationCorrection(Vec3Mod(FloatMod(0), FloatMod(0), FloatMod(180)));
-            newNPC->uniformScale(0.01f);
 
             float runningTime = (float)((double)Engine::GetElapsedTime());
             Animation::BoneTransform(npcMesh, runningTime);
-            npcs[npcID] = newNPC;
+            npcs.emplace(npcID, std::move(newNPC));
 		}
 
         // HUD — always visible, top-left corner
@@ -121,7 +114,7 @@ namespace ai_npc {
         }
 
         for (auto& [npcID, npc] : npcs) {
-            npc->render(camera, deltaTimeSeconds);
+            npc->render(camera.get(), deltaTimeSeconds);
 		}
     }
 
@@ -205,8 +198,8 @@ namespace ai_npc {
                 player->stopTalking();
             } else {
                 for (auto& [id, npc] : npcs) {
-                    if (npc->isNearby(player) && !npc->isTalking()) {
-                        player->talkTo(npc, chat);
+                    if (npc->isNearby(player.get()) && !npc->isTalking()) {
+                        player->talkTo(npc.get(), chat.get());
                         if (player->isTalking()) {
                             chat->show = true;
                             chat->focusInput = true;

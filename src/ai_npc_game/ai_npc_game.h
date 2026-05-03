@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 #include "imgui.h"
 
 #include "components/simple_scene.h"
@@ -42,17 +44,16 @@ namespace ai_npc
         // Class variables
         float facingAngle;
 
-		std::unordered_map<std::string, NPC*> npcs;
+		std::unordered_map<std::string, std::unique_ptr<NPC>> npcs;
         unsigned int maxNPCs;
+        unsigned int nextNpcId;
 
         Shader *skinningShader;
-
-        Character *player;
-
-        Camera* camera;
-
+        std::unique_ptr<Character> player;
+        std::unique_ptr<Camera> camera;
+        
         // HUD and chat logic
-        gfxc::ImGuiLayer *imguiLayer;
-        Chat* chat;
+        std::unique_ptr<gfxc::ImGuiLayer> imguiLayer;
+        std::unique_ptr<Chat> chat;
     };
 }   // namespace ai_npc

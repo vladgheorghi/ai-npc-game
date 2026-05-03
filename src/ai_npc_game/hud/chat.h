@@ -28,7 +28,6 @@ namespace ai_npc {
     class Chat {
         public:
             Chat();
-            ~Chat();
             void showChat(const std::set<std::string> &participants, const std::string playerName);
             Conversation* getConversation(const std::set<std::string>& participants);
         private:

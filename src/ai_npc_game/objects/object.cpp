@@ -29,9 +29,7 @@ namespace ai_npc {
         this->shader = shader;
     }
 
-    Object::~Object() = default;
-
-    void Object::render(Camera *camera) {
+    void Object::render(Camera* camera) {
         if (redoModelMatrix) {
             modelMatrix = glm::translate(glm::mat4(1.0f), position);
             modelMatrix = glm::scale(modelMatrix, scale);
@@ -106,7 +104,7 @@ namespace ai_npc {
     }
 
     void Object::uniformScale(float value) {
-        scale += value;
+        scale *= value;
         redoModelMatrix = true;
     }
 
