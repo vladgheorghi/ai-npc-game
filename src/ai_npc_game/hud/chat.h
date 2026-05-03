@@ -10,11 +10,13 @@ namespace ai_npc {
             Chat();
             ~Chat();
             void ShowChat();
+            void SendMessage(std::string message); 
         private:
         protected:
 
         public:
             bool show;
+            bool focusInput;
         private:
             std::vector<std::string> chatHistory;
             char playerInput[256];

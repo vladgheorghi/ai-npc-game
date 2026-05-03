@@ -3,6 +3,7 @@
 namespace ai_npc {
     Chat::Chat() {
         show = false;
+        focusInput = false;
         playerInput[0] = '\0';
     }
 
@@ -18,14 +19,30 @@ namespace ai_npc {
             ImGui::TextWrapped(chatEntry.c_str());
         }
         ImGui::Separator();
-        ImGui::InputText("##reply", playerInput, IM_ARRAYSIZE(playerInput));
+
+        // Focus on the chat input bar
+        if (focusInput) {
+            ImGui::SetKeyboardFocusHere();  // focuses the NEXT widget, this frame only
+            focusInput = false;
+        }
+
+        bool submitted = ImGui::InputText("##reply", playerInput, IM_ARRAYSIZE(playerInput),
+                                          ImGuiInputTextFlags_EnterReturnsTrue);
         ImGui::SameLine();
-        if (ImGui::Button("Send") && playerInput[0] != '\0')
+        // If Send button is pressed or message is submitted by pressing Enter
+        if (ImGui::Button("Send") || submitted)
         {
-            // TODO: forward playerInput to LLM
-            chatHistory.push_back(std::string("Player: ") + playerInput);
-            playerInput[0] = '\0';
+            if (playerInput[0] != '\0') {
+                chatHistory.push_back(std::string("Player: ") + playerInput);
+                playerInput[0] = '\0';
+            } else {
+                show = false;  // Enter on empty input closes the chat
+            }
         }
         ImGui::End();
+    }
+
+    void Chat::SendMessage(std::string message) {
+        chatHistory.push_back(message);
     }
 }

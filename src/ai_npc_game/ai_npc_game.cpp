@@ -194,7 +194,12 @@ namespace ai_npc {
 
         // Toggle chat on Enter press
         if (key == GLFW_KEY_ENTER) {
-            chat->show = !chat->show;
+            if (!chat->show) {
+                chat->show = true;
+                chat->focusInput = true;
+            } else {
+                chat->show = false;
+            }
         }
     }
 
