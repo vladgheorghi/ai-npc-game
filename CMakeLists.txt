@@ -24,6 +24,25 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 include(${GFXF_ROOT_DIR}/infra/utils.cmake)
 custom_set_build_type()
 
+# Fetch ImGui
+include(FetchContent)
+FetchContent_Declare(
+    imgui
+    GIT_REPOSITORY https://github.com/ocornut/imgui.git
+    GIT_TAG        v1.91.5
+    GIT_SHALLOW    TRUE
+)
+FetchContent_MakeAvailable(imgui)
+
+set(IMGUI_SOURCES
+    ${imgui_SOURCE_DIR}/imgui.cpp
+    ${imgui_SOURCE_DIR}/imgui_draw.cpp
+    ${imgui_SOURCE_DIR}/imgui_tables.cpp
+    ${imgui_SOURCE_DIR}/imgui_widgets.cpp
+    ${imgui_SOURCE_DIR}/imgui_demo.cpp
+    ${imgui_SOURCE_DIR}/backends/imgui_impl_glfw.cpp
+    ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3.cpp
+)
 
 # Fix to hide a bug in CMake. Hopefully able to be removed in the future.
 set(CMAKE_POLICY_DEFAULT_CMP0012 NEW)
@@ -154,8 +173,13 @@ custom_add_executable(${target_name}
     ${GFXF_SOURCES}
     ${GFXF_SOURCES_HIDDEN}
     ${GFXF_HEADERS_PRIVATE}
+    ${IMGUI_SOURCES}
 )
 
+target_include_directories(${target_name} PRIVATE
+    ${imgui_SOURCE_DIR}
+    ${imgui_SOURCE_DIR}/backends
+)
 
 # Detect architecture
 if (CMAKE_SIZEOF_VOID_P EQUAL 8)

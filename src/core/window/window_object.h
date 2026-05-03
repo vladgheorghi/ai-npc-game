@@ -37,6 +37,8 @@ class WindowProperties
 struct WindowDataImpl;
 typedef WindowDataImpl *WindowData;
 
+struct GLFWwindow;
+
 /*
  * Class WindowObject
  */
@@ -69,6 +71,7 @@ class WindowObject
     bool ToggleVSync();
 
     void MakeCurrentContext() const;
+    GLFWwindow* GetGLFWWindow() const;
 
     // Window Information
     void SetSize(int width, int height);

@@ -8,14 +8,18 @@ namespace ai_npc {
         facingAngle = 0.0f;
 
         skinningShader = new Shader("Skinning");
-        character = new Character(glm::vec3(0, 0, 0));
+        player = new Character(glm::vec3(0, 0, 0));
         camera = new Camera();
         maxNPCs = 10;
+
+        imguiLayer = new gfxc::ImGuiLayer();
+        chat = new Chat();
     }
 
 
     Game::~Game()
     {
+        delete imguiLayer;
     }
 
 
@@ -37,24 +41,29 @@ namespace ai_npc {
         }
 
         {
-			character->setMesh(meshes["player_character"]);
-			character->setShader(shaders["Skinning"]);
+			player->setMesh(meshes["player_character"]);
+			player->setShader(shaders["Skinning"]);
             // Visual mesh correction
-            character->setMeshRotationCorrection(Vec3Mod(FloatMod(0), FloatMod(0), FloatMod(180)));
+            player->setMeshRotationCorrection(Vec3Mod(FloatMod(0), FloatMod(0), FloatMod(180)));
             // Render first keyframe
             float runningTime = (float)((double)Engine::GetElapsedTime());
             Animation::BoneTransform(meshes["player_character"], runningTime);
         }
 
         {
-            camera->Set(character->getPosition() + glm::vec3(0, 1, camera->distanceToTarget), character->getPosition() + glm::vec3(0, 1, 0));
+            camera->Set(player->getPosition() + glm::vec3(0, 1, camera->distanceToTarget), player->getPosition() + glm::vec3(0, 1, 0));
 			camera->SetProjectionMatrix(RADIANS(60), window->props.aspectRatio, 0.01f, 200.0f);
+        }
+
+        {
+            imguiLayer->Init(window);
         }
     }
 
 
     void Game::FrameStart()
     {
+        imguiLayer->BeginFrame();
     }
 
 
@@ -62,9 +71,9 @@ namespace ai_npc {
     {
         ClearScreen();
         
-        glm::vec3 eyeHeight = character->getPosition() + glm::vec3(0, 1, 0);
+        glm::vec3 eyeHeight = player->getPosition() + glm::vec3(0, 1, 0);
         camera->FollowTarget(eyeHeight);
-        character->render(camera);
+        player->render(camera);
 
         if (randInt(0, 100) < 2 && npcs.size() < maxNPCs) {
             std::string npcID = "npc" + std::to_string(npcs.size());
@@ -82,6 +91,21 @@ namespace ai_npc {
             npcs[npcID] = newNPC;
 		}
 
+        // HUD — always visible, top-left corner
+        ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiCond_Always);
+        ImGui::SetNextWindowBgAlpha(0.35f);
+        ImGui::Begin("##hud", nullptr,
+            ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize |
+            ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing |
+            ImGuiWindowFlags_NoNav);
+        ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
+        ImGui::Text("NPCs: %zu / %u", npcs.size(), maxNPCs);
+        ImGui::Text("[Enter] Talk to NPC");
+        ImGui::End();
+
+        // Chat panel - toggled with Enter
+        chat->ShowChat();
+
         if (randInt(0, 1000) < 10 && npcs.size() > 0) {
             std::string selectedNPCID = "npc" + std::to_string(randInt(0, (int)npcs.size() - 1));
             if (npcs.count(selectedNPCID) > 0 && !npcs[selectedNPCID]->isMovingToPosition()) {
@@ -98,6 +122,7 @@ namespace ai_npc {
     void Game::FrameEnd()
     {
         DrawCoordinateSystem(camera->GetViewMatrix(), camera->GetProjectionMatrix());
+        imguiLayer->EndFrame();
     }
 
     /*
@@ -106,6 +131,11 @@ namespace ai_npc {
     */
     void Game::OnInputUpdate(float deltaTime, int mods)
     {
+        // Stop WASD movement when typing
+        if (imguiLayer->WantCaptureKeyboard()) {
+            return;
+        }
+
 		// Determine input direction based on WASD keys (e.g. W + A = forward-left, direction will be at 45 degrees)
         glm::vec2 inputDirection(0.0f);
         if (window->KeyHold(GLFW_KEY_W)) {
@@ -138,14 +168,14 @@ namespace ai_npc {
 
 			// Allow sprinting by holding the left shift key, which increases movement speed by 2 units/sec
 			if (window->KeyHold(GLFW_KEY_LEFT_SHIFT)) {
-                character->setMovementSpeed(4.5f);
+                player->setMovementSpeed(4.5f);
             } else {
-                character->setMovementSpeed(2.5f);
+                player->setMovementSpeed(2.5f);
             }
 
-			// Move forward in the direction the character is facing
-            character->rotateOY(facingAngle);
-            character->moveForward(deltaTime);
+			// Move forward in the direction the player is facing
+            player->rotateOY(facingAngle);
+            player->moveForward(deltaTime);
 
 			// Update animation based on elapsed time
             float runningTime = (float)((double)Engine::GetElapsedTime());
@@ -157,6 +187,15 @@ namespace ai_npc {
     void Game::OnKeyPress(int key, int mods)
     {
         // Add key press event
+        
+        // Stop key events going to game logic while ImGui has focus
+        if (imguiLayer->WantCaptureKeyboard())
+            return;
+
+        // Toggle chat on Enter press
+        if (key == GLFW_KEY_ENTER) {
+            chat->show = !chat->show;
+        }
     }
 
 

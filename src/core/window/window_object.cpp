@@ -411,6 +411,12 @@ void WindowObject::MakeCurrentContext() const
 }
 
 
+GLFWwindow* WindowObject::GetGLFWWindow() const
+{
+    return window->handle;
+}
+
+
 void WindowObject::SetSize(int width, int height)
 {
     int frameBufferWidth, frameBufferHeight;

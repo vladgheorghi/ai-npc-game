@@ -1,11 +1,15 @@
 #pragma once
 
+#include "imgui.h"
+
 #include "components/simple_scene.h"
+#include "components/imgui_layer.h"
 
 #include "animation.h"
 #include "ai_npc_game/objects/character.h"
 #include "ai_npc_game/objects/npc.h"
 #include "ai_npc_game/camera/camera.h"
+#include "ai_npc_game/hud/chat.h"
 
 
 namespace ai_npc
@@ -43,10 +47,12 @@ namespace ai_npc
 
         Shader *skinningShader;
 
-        Character *character;
+        Character *player;
 
         Camera* camera;
 
-
+        // HUD and chat logic
+        gfxc::ImGuiLayer *imguiLayer;
+        Chat* chat;
     };
 }   // namespace ai_npc
