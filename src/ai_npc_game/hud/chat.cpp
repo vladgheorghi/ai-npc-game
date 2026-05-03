@@ -1,6 +1,11 @@
 #include "chat.h"
 
 namespace ai_npc {
+    Chat::Chat() {
+        show = false;
+        playerInput[0] = '\0';
+    }
+
     void Chat::ShowChat() {
         if (!show) {
             return;
