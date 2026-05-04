@@ -11,12 +11,17 @@ namespace ai_npc {
     player(std::make_unique<Character>(glm::vec3(0))),
     camera(std::make_unique<Camera>()),
     imguiLayer(std::make_unique<gfxc::ImGuiLayer>()),
+    // Create Chat instance with a resolver lambda function that resolves IDs to names for Character and NPC objects
+    // [this] makes Chat have access to the game instance to access `player` and `npcs` fields
     chat(std::make_unique<Chat>([this](uint32_t id) -> std::string {
         if (id == player->getId()) return player->getName();
         for (auto& [_, npc] : npcs)
-            if (npc->getId() == id) return npc->getName();
+        if (npc->getId() == id) return npc->getName();
         return "<unknown>";
-    })) {}
+    })),
+    spawnTimer(3.0f),       // first NPC spawns after 3s
+    moveTimer(2.0f)
+    {}
 
 
     Game::~Game() = default;
@@ -74,20 +79,12 @@ namespace ai_npc {
         camera->FollowTarget(eyeHeight);
         player->render(camera.get());
 
-        if (randInt(0, 100) < 2 && npcs.size() < maxNPCs) {
-            std::string npcID = "npc" + std::to_string(nextNpcId++);
-            Mesh* npcMesh = new Mesh(npcID);
-            npcMesh->LoadMesh(PATH_JOIN(window->props.selfDir, RESOURCE_PATH::MODELS_AI_NPC_GAME), "scene.fbx");
-            meshes[npcMesh->GetMeshID()] = npcMesh;
-            npcMesh->anim[0]->mTicksPerSecond = 1000;
-
-            auto newNPC = std::make_unique<NPC>(npcMesh, shaders["Skinning"]);
-            newNPC->setMeshRotationCorrection(Vec3Mod(FloatMod(0), FloatMod(0), FloatMod(180)));
-
-            float runningTime = (float)((double)Engine::GetElapsedTime());
-            Animation::BoneTransform(npcMesh, runningTime);
-            npcs.emplace(npcID, std::move(newNPC));
-		}
+        // Spawn NPCs randomly on the map every 2-5 seconds until maxNPCs is achieved
+        spawnTimer -= deltaTimeSeconds;
+        if (spawnTimer <= 0.0f && npcs.size() < maxNPCs) {
+            spawnNPC();
+            spawnTimer = randFloat(2.0f, 5.0f);  // reset to random interval
+        }
 
         // HUD — always visible, top-left corner
         ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiCond_Always);
@@ -101,23 +98,25 @@ namespace ai_npc {
         ImGui::Text("[Enter] Talk to NPC");
         ImGui::End();
 
-        if (randInt(0, 1000) < 10 && npcs.size() > 0) {
-            std::string selectedNPCID = "npc" + std::to_string(randInt(0, (int)npcs.size() - 1));
-            if (npcs.count(selectedNPCID) > 0 && !npcs[selectedNPCID]->isMovingToPosition() && !npcs[selectedNPCID]->isTalking()) {
-                glm::vec3 selectedPosition = glm::vec3(randFloat(-5.0f, 5.0f), 0, randFloat(-5.0f, 5.0f));
-                npcs[selectedNPCID]->moveToPosition(selectedPosition);
-            }
+        // Move random NPC to random position every 2-10 seconds
+        moveTimer -= deltaTimeSeconds;
+        if (moveTimer <= 0.0f && !npcs.empty()) {
+            moveRandomNPC();
+            moveTimer = randFloat(2.0f, 10.0f);
         }
 
+        // Show chat if Enter is pressed 
         if (chat->show && player->isTalking()) {
             Character* partner = player->getTalkingTo();
             chat->showChat({ player->getId(), partner->getId() }, player->getId());
         }
 
+        // Stop talking if chat is closed
         if (!chat->show && player->isTalking()) {
             player->stopTalking();
         }
 
+        // render NPCs
         for (auto& [npcID, npc] : npcs) {
             npc->render(camera.get(), deltaTimeSeconds);
 		}
@@ -264,5 +263,30 @@ namespace ai_npc {
     void Game::OnWindowResize(int width, int height)
     {
         // Treat window resize event
+    }
+
+    void Game::spawnNPC()
+    {
+        std::string npcID = "npc" + std::to_string(nextNpcId++);
+        Mesh* npcMesh = new Mesh(npcID);
+        npcMesh->LoadMesh(PATH_JOIN(window->props.selfDir, RESOURCE_PATH::MODELS_AI_NPC_GAME), "scene.fbx");
+        meshes[npcMesh->GetMeshID()] = npcMesh;
+        npcMesh->anim[0]->mTicksPerSecond = 1000;
+
+        auto newNPC = std::make_unique<NPC>(npcMesh, shaders["Skinning"]);
+        newNPC->setMeshRotationCorrection(Vec3Mod(FloatMod(0), FloatMod(0), FloatMod(180)));
+
+        float runningTime = (float)((double)Engine::GetElapsedTime());
+        Animation::BoneTransform(npcMesh, runningTime);
+        npcs.emplace(npcID, std::move(newNPC));
+    }
+
+    void Game::moveRandomNPC()
+    {
+        std::string selectedNPCID = "npc" + std::to_string(randInt(0, (int)npcs.size() - 1));
+        if (npcs.count(selectedNPCID) > 0 && !npcs[selectedNPCID]->isMovingToPosition() && !npcs[selectedNPCID]->isTalking()) {
+            glm::vec3 selectedPosition = glm::vec3(randFloat(-5.0f, 5.0f), 0, randFloat(-5.0f, 5.0f));
+            npcs[selectedNPCID]->moveToPosition(selectedPosition);
+        }
     }
 }
