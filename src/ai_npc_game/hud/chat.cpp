@@ -1,7 +1,7 @@
 #include "chat.h"
 
 namespace ai_npc {
-    Chat::Chat(NameResolver resolver): show(false), focusInput(false)
+    Chat::Chat(NameResolver resolver): show(false), focusInput(false), resolver(std::move(resolver))
     {
         playerInput[0] = '\0';
     }

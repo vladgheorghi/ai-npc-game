@@ -202,14 +202,22 @@ namespace ai_npc {
                 chat->show = false;
                 player->stopTalking();
             } else {
+                NPC* closest = nullptr;
+                float closestDistance = INFINITY;
+
                 for (auto& [id, npc] : npcs) {
-                    if (npc->isNearby(player.get()) && !npc->isTalking()) {
-                        player->talkTo(npc.get(), chat.get());
-                        if (player->isTalking()) {
-                            chat->show = true;
-                            chat->focusInput = true;
-                        }
-                        break;
+                    float distanceToPlayer = npc->getDistanceTo(player.get());
+                    if (npc->isNearby(player.get()) && !npc->isTalking() && distanceToPlayer < closestDistance) {
+                        closest = npc.get();
+                        closestDistance = distanceToPlayer;
+                    }
+                }
+
+                if (closest != nullptr) {
+                    player->talkTo(closest, chat.get());
+                    if (player->isTalking()) {
+                        chat->show = true;
+                        chat->focusInput = true;
                     }
                 }
             }

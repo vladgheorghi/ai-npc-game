@@ -35,6 +35,10 @@ namespace ai_npc {
         return glm::distance(position, object->getPosition()) < interactRadius;
     }
 
+    float Character::getDistanceTo(Object* object) {
+        return glm::distance(position, object->getPosition());
+    }
+
     void Character::talkTo(NPC* npc, Chat* chat) {
         if (!npc->isNearby(this) || npc->isTalking()) {
             return;

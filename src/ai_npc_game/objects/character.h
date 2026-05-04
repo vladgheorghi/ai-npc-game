@@ -36,6 +36,7 @@ namespace ai_npc
         void moveForward(float distance) override;
         void moveRight(float distance) override;
         bool isNearby(Object* object);
+        float getDistanceTo(Object* object);
         virtual void talkTo(NPC* npc, Chat* chat);
         bool isTalking();
         void stopTalking();
