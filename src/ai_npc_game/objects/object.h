@@ -15,7 +15,9 @@ namespace ai_npc
         // class fields
     public:
     private:
+    static uint32_t nextId;
     protected:
+    uint32_t id;
     glm::vec3 forward;
     glm::vec3 up;
     glm::vec3 right;
@@ -51,6 +53,7 @@ namespace ai_npc
         void rotateOZ(float angle);
         void uniformScale(float value);
 
+        uint32_t getId() const;
         glm::vec3 getForward() const;
         glm::vec3 getRight() const;
         glm::vec3 getUp() const;

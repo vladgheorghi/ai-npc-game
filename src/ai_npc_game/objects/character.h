@@ -40,7 +40,7 @@ namespace ai_npc
         bool isTalking();
         void stopTalking();
 
-		const char* getName() const;
+		std::string& getName();
         float getHealth() const;
         float getDamage() const;
         float getMovementSpeed() const;

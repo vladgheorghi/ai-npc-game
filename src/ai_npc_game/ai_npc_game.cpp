@@ -11,7 +11,12 @@ namespace ai_npc {
     player(std::make_unique<Character>(glm::vec3(0))),
     camera(std::make_unique<Camera>()),
     imguiLayer(std::make_unique<gfxc::ImGuiLayer>()),
-    chat(std::make_unique<Chat>()) {}
+    chat(std::make_unique<Chat>([this](uint32_t id) -> std::string {
+        if (id == player->getId()) return player->getName();
+        for (auto& [_, npc] : npcs)
+            if (npc->getId() == id) return npc->getName();
+        return "<unknown>";
+    })) {}
 
 
     Game::~Game() = default;
@@ -106,7 +111,7 @@ namespace ai_npc {
 
         if (chat->show && player->isTalking()) {
             Character* partner = player->getTalkingTo();
-            chat->showChat({ player->getName(), partner->getName() }, player->getName());
+            chat->showChat({ player->getId(), partner->getId() }, player->getId());
         }
 
         if (!chat->show && player->isTalking()) {

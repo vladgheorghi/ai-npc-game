@@ -2,12 +2,14 @@
 
 
 namespace ai_npc {
+    uint32_t Object::nextId = 0;
+
     // Delegating default constructor
     Object::Object() : Object(glm::vec3(0.0f)) { }
 
-    // Initialize rotation in the member initializer list to avoid calling a deleted/default ctor
     Object::Object(glm::vec3 position)
-        : rotation(FloatMod(), FloatMod(), FloatMod()),
+        : id(nextId++),
+          rotation(FloatMod(), FloatMod(), FloatMod()),
           meshRotation(FloatMod(), FloatMod(), FloatMod()),
           meshRotationCorrection(FloatMod(), FloatMod(), FloatMod()),
           position(position),
@@ -21,7 +23,6 @@ namespace ai_npc {
 		  shader(nullptr)
     { }
 
-    // Delegate to the position constructor properly
     Object::Object(glm::vec3 position, Mesh *mesh, Shader *shader)
         : Object(position)
     {
@@ -55,7 +56,6 @@ namespace ai_npc {
             bones[i] = mesh->m_BoneInfo[i].finalTransformation;
         }
 
-        // TODO (student): Send the bone final transformation to the shader
         int bonesLocation = glGetUniformLocation(shader->program, "Bones");
         glUniformMatrix4fv(bonesLocation, (GLsizei)mesh->m_BoneInfo.size(), GL_FALSE,
             glm::value_ptr(bones[0]));
@@ -108,6 +108,7 @@ namespace ai_npc {
         redoModelMatrix = true;
     }
 
+    uint32_t Object::getId() const { return id; }
     glm::vec3 Object::getForward() const { return forward; }
     glm::vec3 Object::getRight() const { return right; }
     glm::vec3 Object::getUp() const { return up; }

@@ -1,25 +1,25 @@
 #include "chat.h"
 
 namespace ai_npc {
-    Chat::Chat() {
-        show = false;
-        focusInput = false;
+    Chat::Chat(NameResolver resolver): show(false), focusInput(false)
+    {
         playerInput[0] = '\0';
     }
 
-    void Chat::showChat(const std::set<std::string> &participants, const std::string playerName) {
-        Conversation *conversation = getConversation(participants);
+    void Chat::showChat(const std::set<uint32_t>& ids, uint32_t playerId) {
+        Conversation *conversation = getConversation(ids);
 
         ImGui::SetNextWindowSize(ImVec2(520, 160), ImGuiCond_FirstUseEver);
+
         std::string title = "Conversation with ";
-        for (const auto& p : participants) {
-            if (p != playerName) {
-                title += p;
+        for (const auto& id : ids) {
+            if (id != playerId) {
+                title += resolver(id);
             }
         }
         ImGui::Begin(title.c_str(), &show);
         for (auto& message : conversation->messages) {
-            ImGui::TextWrapped("%s: %s", message.sender.c_str(), message.text.c_str());
+            ImGui::TextWrapped("%s: %s", resolver(message.senderId).c_str(), message.text.c_str());
         }
         ImGui::Separator();
 
@@ -36,7 +36,7 @@ namespace ai_npc {
         if (ImGui::Button("Send") || submitted)
         {
             if (playerInput[0] != '\0') {
-                conversation->messages.push_back({playerName, std::string(playerInput)});
+                conversation->messages.push_back({playerId, std::string(playerInput)});
                 playerInput[0] = '\0';
             } else {
                 show = false;  // Enter on empty input closes the chat
@@ -45,12 +45,12 @@ namespace ai_npc {
         ImGui::End();
     }
 
-    Conversation* Chat::getConversation(const std::set<std::string>& participants) {
-        std::string k = Conversation::key(participants);
+    Conversation* Chat::getConversation(const std::set<uint32_t>& ids) {
+        std::string k = Conversation::key(ids);
         // Create new conversation if it doesn't exists
         if (conversations.find(k) == conversations.end()) {
             Conversation conv;
-            conv.participants = participants;
+            conv.participantIds = ids;
             conversations[k] = conv;
         }
         return &conversations[k];
