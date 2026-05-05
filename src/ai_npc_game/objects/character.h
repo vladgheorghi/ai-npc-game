@@ -15,8 +15,6 @@ namespace ai_npc
     class Character : public Object
     {
     // class fields
-    public:
-    private:
     protected:
         std::string name;
         float health;
@@ -41,7 +39,7 @@ namespace ai_npc
         bool isTalking();
         void stopTalking();
 
-		std::string& getName();
+		const std::string& getName();
         float getHealth() const;
         float getDamage() const;
         float getMovementSpeed() const;
@@ -51,7 +49,5 @@ namespace ai_npc
 		void setHealth(float health);
 		void setDamage(float damage);
         void setMovementSpeed(float movementSpeed);
-    private:
-    protected:
     };
 }

@@ -51,6 +51,9 @@ class Shader
     GLint loc_view_matrix;
     GLint loc_projection_matrix;
 
+    // Bones
+    GLint loc_bones;
+
     // Shadow
     GLint loc_light_pos;
     GLint loc_light_color;

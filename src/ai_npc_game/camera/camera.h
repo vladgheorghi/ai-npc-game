@@ -6,7 +6,7 @@ namespace ai_npc
 {
     class Camera
     {
-     public:
+    public:
         Camera()
         {
             position    = glm::vec3(0, 2, 5);
@@ -21,13 +21,13 @@ namespace ai_npc
 
         Camera(const glm::vec3 &position, const glm::vec3 &center)
         {
-            Set(position, center);
+            set(position, center);
         }
 
         ~Camera()
         { }
 
-        void Set(const glm::vec3& position, const glm::vec3& center)
+        void set(const glm::vec3& position, const glm::vec3& center)
         {
             this->position = position;
             glm::vec3 f = glm::normalize(center - position);
@@ -36,10 +36,10 @@ namespace ai_npc
             pitch = asinf(glm::clamp(f.y, -1.f, 1.f));
             roll = 0.f;
 
-            UpdateVectors();
+            updateVectors();
         }
 
-        void SetBack(glm::vec3 &position, glm::vec3 &forward, glm::vec3 &right, glm::vec3 &up)
+        void setBack(glm::vec3 &position, glm::vec3 &forward, glm::vec3 &right, glm::vec3 &up)
         {
             this->position = position;
             this->forward = forward;
@@ -47,72 +47,72 @@ namespace ai_npc
             this->up = up;
         }
 
-        void MoveForward(float distance, glm::vec3 forwardUsed)
+        void moveForward(float distance, glm::vec3 forwardUsed)
         {
             glm::vec3 dir = glm::normalize(glm::vec3(forwardUsed.x, 0, forwardUsed.z));
             position += dir * distance;
         }
 
-        void TranslateForward(float distance)
+        void translateForward(float distance)
         {
             position += glm::normalize(forward) * distance;
         }
 
-        void TranslateUpward(float distance)
+        void translateUpward(float distance)
         {
             position += glm::normalize(up) * distance;
         }
 
-        void TranslateRight(float distance)
+        void translateRight(float distance)
         {
             position += glm::normalize(right) * distance;
         }
 
-        void RotateFirstPerson_OX(float radians)
+        void rotateFirstPerson_OX(float radians)
         {
             pitch += radians;
             // clamp so you can't flip upside-down
             pitch = glm::clamp(pitch, -glm::half_pi<float>() + 0.01f,
                 glm::half_pi<float>() - 0.01f);
-            UpdateVectors();
+            updateVectors();
         }
 
-        void RotateFirstPerson_OY(float radians)
+        void rotateFirstPerson_OY(float radians)
         {
             yaw += radians;
-            UpdateVectors();
+            updateVectors();
         }
 
-        void RotateFirstPerson_OZ(float radians)
+        void rotateFirstPerson_OZ(float radians)
         {
             roll += radians;
-            UpdateVectors();
+            updateVectors();
         }
 
-        void RotateThirdPerson_OX(float radians)
+        void rotateThirdPerson_OX(float radians)
         {
 			float sensitivity = 0.002f;
-            TranslateForward(distanceToTarget);
-            RotateFirstPerson_OX(sensitivity * radians);
-            TranslateForward(-distanceToTarget);
+            translateForward(distanceToTarget);
+            rotateFirstPerson_OX(sensitivity * radians);
+            translateForward(-distanceToTarget);
         }
 
-        void RotateThirdPerson_OY(float radians)
+        void rotateThirdPerson_OY(float radians)
         {
             float sensitivity = 0.002f;
-            TranslateForward(distanceToTarget);
-            RotateFirstPerson_OY(sensitivity * radians);
-            TranslateForward(-distanceToTarget);
+            translateForward(distanceToTarget);
+            rotateFirstPerson_OY(sensitivity * radians);
+            translateForward(-distanceToTarget);
         }
 
-        void RotateThirdPerson_OZ(float radians)
+        void rotateThirdPerson_OZ(float radians)
         {
-            TranslateForward(distanceToTarget);
-            RotateFirstPerson_OZ(radians);
-            TranslateForward(-distanceToTarget);
+            translateForward(distanceToTarget);
+            rotateFirstPerson_OZ(radians);
+            translateForward(-distanceToTarget);
         }
 
-        void UpdateVectors()
+        void updateVectors()
         {
             forward = glm::normalize(glm::vec3(
                 cosf(pitch) * sinf(yaw),   // X
@@ -134,37 +134,22 @@ namespace ai_npc
             }
         }
 
-        void FollowTarget(const glm::vec3& target)
+        void followTarget(const glm::vec3& target)
         {
             position = target - forward * distanceToTarget;
         }
 
-        glm::mat4 GetViewMatrix() const
-        {
-            
-            return glm::lookAt(position, position + forward, up);
-        }
+        void setProjectionMatrix(float fov, float aspectRatio, float zNear, float zFar) { projectionMatrix = glm::perspective(fov, aspectRatio, zNear, zFar); }
+        
+        glm::mat4 getViewMatrix() const { return glm::lookAt(position, position + forward, up); }
+        glm::mat4 getProjectionMatrix() const { return projectionMatrix; }
+        glm::vec3 getTargetPosition() const { return position + forward * distanceToTarget; }
+        float getRotationOX() const { return pitch; }
+        float getRotationOY() const { return yaw; }
+        float getRotationOZ() const { return roll; }
+        float getDistanceToTarget() const { return distanceToTarget; }
 
-        void SetProjectionMatrix(float fov, float aspectRatio, float zNear, float zFar)
-        {
-            projectionMatrix = glm::perspective(fov, aspectRatio, zNear, zFar);
-		}
-
-        glm::mat4 GetProjectionMatrix() const
-        {
-            return projectionMatrix;
-		}
-
-        glm::vec3 GetTargetPosition() const
-        {
-            return position + forward * distanceToTarget;
-        }
-
-        float GetRotationOX() const { return pitch; }
-        float GetRotationOY() const { return yaw; }
-        float GetRotationOZ() const { return roll; }
-
-        void Zoom(float value) {
+        void zoom(float value) {
             // Set scroll sensitivity
             float sensitivity = 0.3f;
 
@@ -172,7 +157,7 @@ namespace ai_npc
             distanceToTarget = glm::clamp(distanceToTarget + sensitivity * value, 0.5f, 10.0f);
         }
 
-     public:
+    private:
         glm::mat4 projectionMatrix;
         float distanceToTarget;
         glm::vec3 position;

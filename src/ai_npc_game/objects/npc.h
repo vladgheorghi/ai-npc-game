@@ -15,8 +15,6 @@ namespace ai_npc
     class NPC : public Character
     {
         // class fields
-    public:
-    private:
     protected:
         bool movingToPosition;
         glm::vec3 selectedPosition;
@@ -32,6 +30,5 @@ namespace ai_npc
         void lookAt(glm::vec3 position);
     private:
         void updatePosition(float deltaTimeSeconds);
-    protected:
     };
 }

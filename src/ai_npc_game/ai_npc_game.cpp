@@ -50,13 +50,12 @@ namespace ai_npc {
             // Visual mesh correction
             player->setMeshRotationCorrection(Vec3Mod(FloatMod(0), FloatMod(0), FloatMod(180)));
             // Render first keyframe
-            float runningTime = (float)((double)Engine::GetElapsedTime());
-            Animation::BoneTransform(meshes["human"], runningTime);
+            Animation::BoneTransform(meshes["human"], Engine::GetElapsedTime());
         }
 
         {
-            camera->Set(player->getPosition() + glm::vec3(0, 1, camera->distanceToTarget), player->getPosition() + glm::vec3(0, 1, 0));
-			camera->SetProjectionMatrix(RADIANS(60), window->props.aspectRatio, 0.01f, 200.0f);
+            camera->set(player->getPosition() + glm::vec3(0, 1, camera->getDistanceToTarget()), player->getPosition() + glm::vec3(0, 1, 0));
+            camera->setProjectionMatrix(RADIANS(60), window->props.aspectRatio, 0.01f, 200.0f);
         }
 
         {
@@ -95,7 +94,7 @@ namespace ai_npc {
 
     void Game::FrameEnd()
     {
-        DrawCoordinateSystem(camera->GetViewMatrix(), camera->GetProjectionMatrix());
+        DrawCoordinateSystem(camera->getViewMatrix(), camera->getProjectionMatrix());
         imguiLayer->EndFrame();
     }
 
@@ -128,7 +127,7 @@ namespace ai_npc {
 		// If there's input
         if (glm::length(inputDirection) > 0.0f) {
 			// Calculate the angle to rotate toward, relative to camera's forward direction
-            float angle = DEGREES(atan2f(inputDirection.x, inputDirection.y) - camera->GetRotationOY());
+            float angle = DEGREES(atan2f(inputDirection.x, inputDirection.y) - camera->getRotationOY());
 
             // Shortest angular delta, clamped to [-180, 180]
             // (i.e. calculate how much rotation is left until reaching `angle` based on current steps added to `facingAngle`)
@@ -206,8 +205,8 @@ namespace ai_npc {
         // Add mouse move event
         if (window->MouseHold(GLFW_MOUSE_BUTTON_RIGHT))
         {
-            camera->RotateThirdPerson_OX(-deltaY);
-            camera->RotateThirdPerson_OY(deltaX);
+            camera->rotateThirdPerson_OX(-deltaY);
+            camera->rotateThirdPerson_OY(deltaX);
         }
     }
 
@@ -227,7 +226,7 @@ namespace ai_npc {
     void Game::OnMouseScroll(int mouseX, int mouseY, int offsetX, int offsetY)
     {
         // Treat mouse scroll event
-        camera->Zoom(-offsetY);
+        camera->zoom(-offsetY);
     }
 
 

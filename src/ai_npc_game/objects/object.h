@@ -16,33 +16,32 @@ namespace ai_npc
 {
     class Object
     {
-        // class fields
-    public:
+    // class fields
     private:
-    static uint32_t nextId;
+        static uint32_t nextId;
     protected:
-    uint32_t id;
-    glm::vec3 forward;
-    glm::vec3 up;
-    glm::vec3 right;
-    
-    glm::vec3 position;
-    Vec3Mod rotation;
-    glm::vec3 scale;
+        uint32_t id;
+        glm::vec3 forward;
+        glm::vec3 up;
+        glm::vec3 right;
+        
+        glm::vec3 position;
+        Vec3Mod rotation;
+        glm::vec3 scale;
 
-    glm::mat4 modelMatrix;
-    bool redoModelMatrix;
+        glm::mat4 modelMatrix;
+        bool redoModelMatrix;
 
-    Shader *shader;
-    Mesh *mesh;
-    std::vector<BoneInfo> instanceBoneTransforms;
+        Shader *shader;
+        Mesh *mesh;
+        std::vector<BoneInfo> instanceBoneTransforms;
 
-    // Rotation offsets only applied to the mesh at render time
-    Vec3Mod meshRotation;
-    // Rotation offsets to correct irregularities from mesh file. Only applied to mesh at render time
-    Vec3Mod meshRotationCorrection;
+        // Rotation offsets only applied to the mesh at render time
+        Vec3Mod meshRotation;
+        // Rotation offsets to correct irregularities from mesh file. Only applied to mesh at render time
+        Vec3Mod meshRotationCorrection;
 
-        // class methods
+    // class methods
     public:
         Object();
         Object(glm::vec3 position);
@@ -80,6 +79,5 @@ namespace ai_npc
         void setMeshRotationCorrection(Vec3Mod rotMeshCorrection);
     private:
         void rotate();
-    protected:
     };
 }

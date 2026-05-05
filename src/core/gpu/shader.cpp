@@ -79,6 +79,9 @@ void Shader::GetUniforms()
     loc_view_matrix         = GetUniformLocation("View");
     loc_projection_matrix   = GetUniformLocation("Projection");
 
+    // Bones
+    loc_bones               = GetUniformLocation("Bones");
+
     // Lighting and shadows
     loc_light_pos           = GetUniformLocation("light_position");
     loc_light_color         = GetUniformLocation("light_color");

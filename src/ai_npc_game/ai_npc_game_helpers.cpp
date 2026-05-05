@@ -8,6 +8,7 @@ namespace ai_npc {
             std::string npcID = "npc" + std::to_string(nextNpcId++);
             // Reuse the shared mesh loaded once at Init
             auto newNPC = std::make_unique<NPC>(meshes["human"], shaders["Skinning"]);
+            // Correct mesh
             newNPC->setMeshRotationCorrection(Vec3Mod(FloatMod(0), FloatMod(0), FloatMod(180)));
     
             npcs.emplace(npcID, std::move(newNPC));
@@ -67,7 +68,7 @@ namespace ai_npc {
     void Game::renderPlayer()
     {
         glm::vec3 eyeHeight = player->getPosition() + glm::vec3(0, 1, 0);
-        camera->FollowTarget(eyeHeight);
+        camera->followTarget(eyeHeight);
         player->render(camera.get());
     }
 }

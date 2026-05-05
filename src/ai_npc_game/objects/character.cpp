@@ -58,7 +58,7 @@ namespace ai_npc {
         talkingTo = nullptr;
     }
 
-	std::string& Character::getName() { return name; }
+	const std::string& Character::getName() { return name; }
 	float Character::getHealth() const { return health; }
 	float Character::getDamage() const { return damage; }
     float Character::getMovementSpeed() const { return movementSpeed; }

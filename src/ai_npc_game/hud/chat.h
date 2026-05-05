@@ -32,8 +32,6 @@ namespace ai_npc {
             Chat(NameResolver resolver);
             void showChat(const std::set<uint32_t>& ids, uint32_t playerId);
             Conversation* getConversation(const std::set<uint32_t>& ids);
-        private:
-        protected:
 
         public:
             bool show;
@@ -42,6 +40,5 @@ namespace ai_npc {
             NameResolver resolver;
             char playerInput[256];
             std::unordered_map<std::string, Conversation> conversations;
-        protected:
     };
 }

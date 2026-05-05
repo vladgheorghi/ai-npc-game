@@ -16,9 +16,6 @@
 
 namespace ai_npc
 {
-
-    class Character;
-
     class Game : public gfxc::SimpleScene
     {
     public:
@@ -48,8 +45,9 @@ namespace ai_npc
         void renderNPCs(float deltaTimeSeconds);
         void renderPlayer();
 
-        // Class variables
-        float facingAngle;
+    // Class variables
+    private:
+        FloatMod facingAngle;
 
 		std::unordered_map<std::string, std::unique_ptr<NPC>> npcs;
         unsigned int maxNPCs;

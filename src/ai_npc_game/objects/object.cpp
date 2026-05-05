@@ -49,21 +49,22 @@ namespace ai_npc {
 
         // Render an object using the specified shader and the specified position
         shader->Use();
-        glUniformMatrix4fv(shader->loc_view_matrix, 1, GL_FALSE, glm::value_ptr(camera->GetViewMatrix()));
-        glUniformMatrix4fv(shader->loc_projection_matrix, 1, GL_FALSE, glm::value_ptr(camera->GetProjectionMatrix()));
+        glUniformMatrix4fv(shader->loc_view_matrix, 1, GL_FALSE, glm::value_ptr(camera->getViewMatrix()));
+        glUniformMatrix4fv(shader->loc_projection_matrix, 1, GL_FALSE, glm::value_ptr(camera->getProjectionMatrix()));
         glUniformMatrix4fv(shader->loc_model_matrix, 1, GL_FALSE, glm::value_ptr(modelMatrix));
 
+        // TODO: move hardcoded value to define
         glm::mat4 bones[200];
 
         const std::vector<BoneInfo>& bonesSource = instanceBoneTransforms.empty() ? mesh->m_BoneInfo : instanceBoneTransforms;
+        assert(200 >= bonesSource.size());
 
         for (int i = 0; i < (int)bonesSource.size(); i++)
         {
             bones[i] = bonesSource[i].finalTransformation;
         }
 
-        int bonesLocation = glGetUniformLocation(shader->program, "Bones");
-        glUniformMatrix4fv(bonesLocation, (GLsizei)bonesSource.size(), GL_FALSE,
+        glUniformMatrix4fv(shader->loc_bones, (GLsizei)bonesSource.size(), GL_FALSE,
             glm::value_ptr(bones[0]));
 
         mesh->Render();

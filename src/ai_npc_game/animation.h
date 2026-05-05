@@ -7,7 +7,7 @@ namespace ai_npc
 {
     class Animation
     {
-        // class methods
+    // class methods
     public:
         static void BoneTransform(Mesh* mesh, float timeInSeconds);
         static void BoneTransform(Mesh* mesh, float timeInSeconds, std::vector<BoneInfo>& outBones);
@@ -20,6 +20,5 @@ namespace ai_npc
         static void ComputeInterpolatedScaling(aiVector3D& Out, float animationTime, const aiNodeAnim* pNodeAnim);
         static unsigned int FindPosition(float animationTime, const aiNodeAnim* pNodeAnim);
         static void ComputeInterpolatedPosition(aiVector3D& Out, float animationTime, const aiNodeAnim* pNodeAnim);
-    protected:
     };
 }
