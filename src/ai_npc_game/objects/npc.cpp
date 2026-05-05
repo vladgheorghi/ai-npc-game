@@ -5,9 +5,13 @@ namespace ai_npc
 {
     // Constructor with random spawn position
     NPC::NPC(Mesh* mesh, Shader* shader) : Character(glm::vec3(randFloat(-10.0f, 10.0f), 0.0f, randFloat(-10.0f, 10.0f)), mesh, shader) {
-        name = mesh->GetMeshID();
+        name = "NPC" + std::to_string(id);
         movingToPosition = false;
 		degreesLeftToRotate = 0;
+        // Each NPC gets its own copy of the bone array so all share the same Mesh GPU buffers
+        // but animate independently
+        instanceBoneTransforms = mesh->m_BoneInfo;
+        Animation::BoneTransform(mesh, (float)Engine::GetElapsedTime(), instanceBoneTransforms);
     }
 
     void NPC::moveToPosition(glm::vec3 position) {
@@ -51,7 +55,7 @@ namespace ai_npc
             }
 
             // Do movement animation only while moving
-            Animation::BoneTransform(mesh, (float)Engine::GetElapsedTime());
+            Animation::BoneTransform(mesh, (float)Engine::GetElapsedTime(), instanceBoneTransforms);
             redoModelMatrix = true;
         }
     }

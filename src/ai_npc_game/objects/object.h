@@ -4,6 +4,7 @@
 
 #include "core/gpu/mesh.h"
 #include "core/gpu/shader.h"
+#include "core/gpu/vertex_bone_data.h"
 
 #include "ai_npc_game/camera/camera.h"
 #include "ai_npc_game/utils/float_mod.h"
@@ -31,6 +32,7 @@ namespace ai_npc
 
     Shader *shader;
     Mesh *mesh;
+    std::vector<BoneInfo> instanceBoneTransforms;
 
     // Rotation offsets only applied to the mesh at render time
     Vec3Mod meshRotation;

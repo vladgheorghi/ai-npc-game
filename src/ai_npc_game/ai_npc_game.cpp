@@ -38,14 +38,14 @@ namespace ai_npc {
         }
 
         {
-            Mesh* characterMesh = new Mesh("player_character");
-            characterMesh->LoadMesh(PATH_JOIN(window->props.selfDir, RESOURCE_PATH::MODELS_AI_NPC_GAME), "scene.fbx");
-            meshes[characterMesh->GetMeshID()] = characterMesh;
-            characterMesh->anim[0]->mTicksPerSecond = 1000;
+            Mesh* humanMesh = new Mesh("human");
+            humanMesh->LoadMesh(PATH_JOIN(window->props.selfDir, RESOURCE_PATH::MODELS_AI_NPC_GAME), "scene.fbx");
+            meshes[humanMesh->GetMeshID()] = humanMesh;
+            humanMesh->anim[0]->mTicksPerSecond = 1000;
         }
 
         {
-			player->setMesh(meshes["player_character"]);
+			player->setMesh(meshes["human"]);
 			player->setShader(shaders["Skinning"]);
             // Visual mesh correction
             player->setMeshRotationCorrection(Vec3Mod(FloatMod(0), FloatMod(0), FloatMod(180)));
