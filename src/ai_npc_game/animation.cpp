@@ -4,20 +4,21 @@
 namespace ai_npc {
     void Animation::BoneTransform(Mesh* mesh, float timeInSeconds)
     {
+        BoneTransform(mesh, timeInSeconds, mesh->m_BoneInfo);
+    }
+
+    void Animation::BoneTransform(Mesh* mesh, float timeInSeconds, std::vector<BoneInfo>& outBones)
+    {
         glm::mat4 Identity = glm::mat4(1.0f);
 
-        // Compute the duration of the animation
         float ticksPerSecond = mesh->anim[0]->mTicksPerSecond != 0 ? mesh->anim[0]->mTicksPerSecond : 25.0f;
         float timeInTicks = timeInSeconds * ticksPerSecond;
         float animationTime = fmod(timeInTicks, mesh->anim[0]->mDuration);
 
-        // Compute the final transformations for each bone at the current time stamp
-        // starting from the root node
-        // TODO (student): Uncomment this to test the animation
-        ReadNodeHierarchy(mesh, animationTime, mesh->rootNode, Identity, mesh->anim);
+        ReadNodeHierarchy(mesh, animationTime, mesh->rootNode, Identity, mesh->anim, outBones);
     }
 
-    void Animation::ReadNodeHierarchy(Mesh* mesh, float animationTime, const aiNode* pNode, const glm::mat4& parentTransform, aiAnimation** anim)
+    void Animation::ReadNodeHierarchy(Mesh* mesh, float animationTime, const aiNode* pNode, const glm::mat4& parentTransform, aiAnimation** anim, std::vector<BoneInfo>& outBones)
     {
         std::string NodeName(pNode->mName.data);
 
@@ -50,22 +51,17 @@ namespace ai_npc {
             nodeTransformation = TranslationM * RotationM * ScalingM;
         }
 
-        // TODO (student): Apply the parent transformation to the current transformation
         glm::mat4 GlobalTransformation = parentTransform * nodeTransformation;
 
         if (mesh->m_BoneMapping.find(NodeName) != mesh->m_BoneMapping.end()) {
-            // Bring the vertices from their local space position into their node space.
-            // Multiply the result with the combined transformations of all the node parents plus the current transformation.
-            // Bring the result back into local space.
-
             unsigned int BoneIndex = mesh->m_BoneMapping[NodeName];
-            mesh->m_BoneInfo[BoneIndex].finalTransformation = mesh->m_GlobalInverseTransform * GlobalTransformation *
+            // boneOffset is static mesh data; finalTransformation goes into the per-instance array
+            outBones[BoneIndex].finalTransformation = mesh->m_GlobalInverseTransform * GlobalTransformation *
                 mesh->m_BoneInfo[BoneIndex].boneOffset;
         }
 
-        // Compute the transformations of the children of the current node
         for (unsigned int i = 0; i < pNode->mNumChildren; i++) {
-            ReadNodeHierarchy(mesh, animationTime, pNode->mChildren[i], GlobalTransformation, anim);
+            ReadNodeHierarchy(mesh, animationTime, pNode->mChildren[i], GlobalTransformation, anim, outBones);
         }
     }
 

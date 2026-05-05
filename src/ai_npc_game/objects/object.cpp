@@ -51,13 +51,15 @@ namespace ai_npc {
 
         glm::mat4 bones[200];
 
-        for (int i = 0; i < (int)mesh->m_BoneInfo.size(); i++)
+        const std::vector<BoneInfo>& bonesSource =
+            instanceBoneTransforms.empty() ? mesh->m_BoneInfo : instanceBoneTransforms;
+        for (int i = 0; i < (int)bonesSource.size(); i++)
         {
-            bones[i] = mesh->m_BoneInfo[i].finalTransformation;
+            bones[i] = bonesSource[i].finalTransformation;
         }
 
         int bonesLocation = glGetUniformLocation(shader->program, "Bones");
-        glUniformMatrix4fv(bonesLocation, (GLsizei)mesh->m_BoneInfo.size(), GL_FALSE,
+        glUniformMatrix4fv(bonesLocation, (GLsizei)bonesSource.size(), GL_FALSE,
             glm::value_ptr(bones[0]));
 
         mesh->Render();

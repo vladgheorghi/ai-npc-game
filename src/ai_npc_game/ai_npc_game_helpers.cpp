@@ -6,16 +6,10 @@ namespace ai_npc {
         spawnTimer -= deltaTimeSeconds;
         if (spawnTimer <= 0.0f && npcs.size() < maxNPCs) {
             std::string npcID = "npc" + std::to_string(nextNpcId++);
-            Mesh* npcMesh = new Mesh(npcID);
-            npcMesh->LoadMesh(PATH_JOIN(window->props.selfDir, RESOURCE_PATH::MODELS_AI_NPC_GAME), "scene.fbx");
-            meshes[npcMesh->GetMeshID()] = npcMesh;
-            npcMesh->anim[0]->mTicksPerSecond = 1000;
-    
-            auto newNPC = std::make_unique<NPC>(npcMesh, shaders["Skinning"]);
+
+            // Reuse the shared mesh loaded once at Init — no disk I/O or GPU upload per spawn
+            auto newNPC = std::make_unique<NPC>(meshes["npc_template"], shaders["Skinning"]);
             newNPC->setMeshRotationCorrection(Vec3Mod(FloatMod(0), FloatMod(0), FloatMod(180)));
-    
-            float runningTime = (float)((double)Engine::GetElapsedTime());
-            Animation::BoneTransform(npcMesh, runningTime);
             npcs.emplace(npcID, std::move(newNPC));
             spawnTimer = randFloat(2.0f, 5.0f);  // reset to random interval
         }

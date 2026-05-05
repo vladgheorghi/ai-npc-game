@@ -45,6 +45,15 @@ namespace ai_npc {
         }
 
         {
+            // Shared NPC mesh — loaded once; all NPCs share its VAO/VBO and animate
+            // independently via their own instanceBoneTransforms copy
+            Mesh* npcTemplateMesh = new Mesh("npc_template");
+            npcTemplateMesh->LoadMesh(PATH_JOIN(window->props.selfDir, RESOURCE_PATH::MODELS_AI_NPC_GAME), "scene.fbx");
+            meshes[npcTemplateMesh->GetMeshID()] = npcTemplateMesh;
+            npcTemplateMesh->anim[0]->mTicksPerSecond = 1000;
+        }
+
+        {
 			player->setMesh(meshes["player_character"]);
 			player->setShader(shaders["Skinning"]);
             // Visual mesh correction
