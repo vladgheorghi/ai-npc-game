@@ -75,51 +75,22 @@ namespace ai_npc {
     {
         ClearScreen();
         
-        glm::vec3 eyeHeight = player->getPosition() + glm::vec3(0, 1, 0);
-        camera->FollowTarget(eyeHeight);
-        player->render(camera.get());
+        renderPlayer();
 
-        // Spawn NPCs randomly on the map every 2-5 seconds until maxNPCs is achieved
-        spawnTimer -= deltaTimeSeconds;
-        if (spawnTimer <= 0.0f && npcs.size() < maxNPCs) {
-            spawnNPC();
-            spawnTimer = randFloat(2.0f, 5.0f);  // reset to random interval
-        }
-
-        // HUD — always visible, top-left corner
-        ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiCond_Always);
-        ImGui::SetNextWindowBgAlpha(0.35f);
-        ImGui::Begin("##hud", nullptr,
-            ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize |
-            ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing |
-            ImGuiWindowFlags_NoNav);
-        ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
-        ImGui::Text("NPCs: %zu / %u", npcs.size(), maxNPCs);
-        ImGui::Text("[Enter] Talk to NPC");
-        ImGui::End();
+        // Spawn NPCs randomly on the map every 2-5 seconds until `maxNPCs` is achieved
+        spawnNPC(deltaTimeSeconds);
 
         // Move random NPC to random position every 2-10 seconds
-        moveTimer -= deltaTimeSeconds;
-        if (moveTimer <= 0.0f && !npcs.empty()) {
-            moveRandomNPC();
-            moveTimer = randFloat(2.0f, 10.0f);
-        }
+        moveRandomNPC(deltaTimeSeconds);
+        
+        // HUD — always visible, top-left corner
+        showHUD();
 
-        // Show chat if Enter is pressed 
-        if (chat->show && player->isTalking()) {
-            Character* partner = player->getTalkingTo();
-            chat->showChat({ player->getId(), partner->getId() }, player->getId());
-        }
-
-        // Stop talking if chat is closed
-        if (!chat->show && player->isTalking()) {
-            player->stopTalking();
-        }
+        // Show/close chat if Enter is pressed or
+        showChatOnPress();
 
         // render NPCs
-        for (auto& [npcID, npc] : npcs) {
-            npc->render(camera.get(), deltaTimeSeconds);
-		}
+        renderNPCs(deltaTimeSeconds);
     }
 
     void Game::FrameEnd()
@@ -263,30 +234,5 @@ namespace ai_npc {
     void Game::OnWindowResize(int width, int height)
     {
         // Treat window resize event
-    }
-
-    void Game::spawnNPC()
-    {
-        std::string npcID = "npc" + std::to_string(nextNpcId++);
-        Mesh* npcMesh = new Mesh(npcID);
-        npcMesh->LoadMesh(PATH_JOIN(window->props.selfDir, RESOURCE_PATH::MODELS_AI_NPC_GAME), "scene.fbx");
-        meshes[npcMesh->GetMeshID()] = npcMesh;
-        npcMesh->anim[0]->mTicksPerSecond = 1000;
-
-        auto newNPC = std::make_unique<NPC>(npcMesh, shaders["Skinning"]);
-        newNPC->setMeshRotationCorrection(Vec3Mod(FloatMod(0), FloatMod(0), FloatMod(180)));
-
-        float runningTime = (float)((double)Engine::GetElapsedTime());
-        Animation::BoneTransform(npcMesh, runningTime);
-        npcs.emplace(npcID, std::move(newNPC));
-    }
-
-    void Game::moveRandomNPC()
-    {
-        std::string selectedNPCID = "npc" + std::to_string(randInt(0, (int)npcs.size() - 1));
-        if (npcs.count(selectedNPCID) > 0 && !npcs[selectedNPCID]->isMovingToPosition() && !npcs[selectedNPCID]->isTalking()) {
-            glm::vec3 selectedPosition = glm::vec3(randFloat(-5.0f, 5.0f), 0, randFloat(-5.0f, 5.0f));
-            npcs[selectedNPCID]->moveToPosition(selectedPosition);
-        }
     }
 }

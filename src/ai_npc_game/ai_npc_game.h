@@ -41,8 +41,12 @@ namespace ai_npc
         void OnMouseScroll(int mouseX, int mouseY, int offsetX, int offsetY) override;
         void OnWindowResize(int width, int height) override;
 
-        void spawnNPC();
-        void moveRandomNPC();
+        void spawnNPC(float deltaTimeSeconds);
+        void moveRandomNPC(float deltaTimeSeconds);
+        void showHUD();
+        void showChatOnPress();
+        void renderNPCs(float deltaTimeSeconds);
+        void renderPlayer();
 
         // Class variables
         float facingAngle;
