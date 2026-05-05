@@ -72,12 +72,9 @@ namespace ai_npc
     }
 
     void NPC::talkTo(Character *character) {
-        if (!character->isNearby(this) || character->isTalking()) {
-            return;
+        if (tryStartConversation(this, character)) {
+            movingToPosition = false;
+            lookAt(character->getPosition());
         }
-
-        movingToPosition = false;
-        talkingTo = character;
-        lookAt(character->getPosition());
     }
 }

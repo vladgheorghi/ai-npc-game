@@ -10,7 +10,6 @@
 namespace ai_npc
 {
     class NPC;
-    class Chat;
 
     class Character : public Object
     {
@@ -35,9 +34,11 @@ namespace ai_npc
         void moveRight(float distance) override;
         bool isNearby(Object* object);
         float getDistanceTo(Object* object);
-        virtual void talkTo(NPC* npc, Chat* chat);
+        void talkTo(NPC* npc);
         bool isTalking();
         void stopTalking();
+
+        static bool tryStartConversation(Character* a, Character* b);
 
 		const std::string& getName();
         float getHealth() const;

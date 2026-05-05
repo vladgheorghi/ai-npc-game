@@ -9,18 +9,18 @@ namespace ai_npc {
 
     Object::Object(glm::vec3 position)
         : id(nextId++),
-          rotation(FloatMod(), FloatMod(), FloatMod()),
-          meshRotation(FloatMod(), FloatMod(), FloatMod()),
-          meshRotationCorrection(FloatMod(), FloatMod(), FloatMod()),
-          position(position),
-          scale(glm::vec3(1, 1, 1)),
           forward(glm::normalize(glm::vec3(0, 0, -1))),
           up(glm::normalize(glm::vec3(0, 1, 0))),
           right(glm::cross(forward, up)),
+          position(position),
+          rotation(FloatMod(), FloatMod(), FloatMod()),
+          scale(glm::vec3(1, 1, 1)),
           modelMatrix(glm::mat4(1.0f)),
           redoModelMatrix(true),
+		  shader(nullptr),
           mesh(nullptr),
-		  shader(nullptr)
+          meshRotation(FloatMod(), FloatMod(), FloatMod()),
+          meshRotationCorrection(FloatMod(), FloatMod(), FloatMod())
     { }
 
     Object::Object(glm::vec3 position, Mesh *mesh, Shader *shader)

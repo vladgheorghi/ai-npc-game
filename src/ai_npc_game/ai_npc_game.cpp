@@ -183,7 +183,7 @@ namespace ai_npc {
                 }
 
                 if (closest != nullptr) {
-                    player->talkTo(closest, chat.get());
+                    player->talkTo(closest);
                     if (player->isTalking()) {
                         chat->show = true;
                         chat->focusInput = true;

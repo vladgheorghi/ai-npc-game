@@ -39,13 +39,8 @@ namespace ai_npc {
         return glm::distance(position, object->getPosition());
     }
 
-    void Character::talkTo(NPC* npc, Chat* chat) {
-        if (!npc->isNearby(this) || npc->isTalking()) {
-            return;
-        }
-
-        npc->talkTo(this);
-        talkingTo = npc;
+    void Character::talkTo(NPC* npc) {
+        tryStartConversation(this, npc);
     }
 
     bool Character::isTalking() {
@@ -56,6 +51,14 @@ namespace ai_npc {
         if (talkingTo == nullptr) return;
         talkingTo->talkingTo = nullptr;
         talkingTo = nullptr;
+    }
+
+    bool Character::tryStartConversation(Character* a, Character* b) {
+        if (a->isTalking() || b->isTalking()) return false;
+        if (!a->isNearby(b)) return false;
+        a->talkingTo = b;
+        b->talkingTo = a;
+        return true;
     }
 
 	const std::string& Character::getName() { return name; }
