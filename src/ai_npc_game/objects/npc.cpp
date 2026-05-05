@@ -8,10 +8,6 @@ namespace ai_npc
         name = "NPC" + std::to_string(id);
         movingToPosition = false;
 		degreesLeftToRotate = 0;
-        // Each NPC gets its own copy of the bone array so all share the same Mesh GPU buffers
-        // but animate independently
-        instanceBoneTransforms = mesh->m_BoneInfo;
-        Animation::BoneTransform(mesh, (float)Engine::GetElapsedTime(), instanceBoneTransforms);
     }
 
     void NPC::moveToPosition(glm::vec3 position) {

@@ -51,7 +51,7 @@ namespace ai_npc {
             player->setMeshRotationCorrection(Vec3Mod(FloatMod(0), FloatMod(0), FloatMod(180)));
             // Render first keyframe
             float runningTime = (float)((double)Engine::GetElapsedTime());
-            Animation::BoneTransform(meshes["player_character"], runningTime);
+            Animation::BoneTransform(meshes["human"], runningTime);
         }
 
         {
@@ -153,7 +153,7 @@ namespace ai_npc {
 
 			// Update animation based on elapsed time
             float runningTime = (float)((double)Engine::GetElapsedTime());
-            Animation::BoneTransform(meshes["player_character"], runningTime);
+            Animation::BoneTransform(meshes["human"], runningTime);
         }
     }
 

@@ -2,12 +2,15 @@
 
 #include "utils/glm_utils.h"
 
+#include "core/engine.h"
 #include "core/gpu/mesh.h"
 #include "core/gpu/shader.h"
 #include "core/gpu/vertex_bone_data.h"
 
 #include "ai_npc_game/camera/camera.h"
 #include "ai_npc_game/utils/float_mod.h"
+#include "ai_npc_game/animation.h"
+
 
 namespace ai_npc
 {

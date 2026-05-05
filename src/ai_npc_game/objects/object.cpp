@@ -28,6 +28,10 @@ namespace ai_npc {
     {
         this->mesh = mesh;
         this->shader = shader;
+        // Each NPC gets its own copy of the bone array so all share the same Mesh GPU buffers
+        // but animate independently
+        instanceBoneTransforms = mesh->m_BoneInfo;
+        Animation::BoneTransform(mesh, (float)Engine::GetElapsedTime(), instanceBoneTransforms);
     }
 
     void Object::render(Camera* camera) {

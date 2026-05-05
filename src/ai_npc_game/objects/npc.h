@@ -23,7 +23,6 @@ namespace ai_npc
         FloatMod degreesLeftToRotate;
         // class methods
     public:
-        NPC();
         // Constructor with random spawn position
         NPC(Mesh* mesh, Shader* shader);
         void moveToPosition(glm::vec3 position);
