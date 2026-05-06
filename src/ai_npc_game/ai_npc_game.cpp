@@ -19,8 +19,8 @@ namespace ai_npc {
         if (npc->getId() == id) return npc->getName();
         return "<unknown>";
     })),
-    spawnTimer(3.0f),       // first NPC spawns after 3s
-    moveTimer(2.0f)
+    spawnTimer(3.0f), // first NPC spawns after 3 seconds
+    moveTimer(2.0f)   // first NPC moves after 2 seconds
     {}
 
 

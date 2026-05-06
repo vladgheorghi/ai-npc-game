@@ -40,7 +40,7 @@ namespace ai_npc {
     }
 
     void Character::talkTo(NPC* npc) {
-        tryStartConversation(this, npc);
+        npc->talkTo(this);
     }
 
     bool Character::isTalking() {
