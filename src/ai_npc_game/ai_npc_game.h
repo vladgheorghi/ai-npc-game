@@ -12,6 +12,7 @@
 #include "ai_npc_game/objects/npc.h"
 #include "ai_npc_game/camera/camera.h"
 #include "ai_npc_game/hud/chat.h"
+#include "ai_npc_game/llm/llm_client.h"
 
 
 namespace ai_npc
