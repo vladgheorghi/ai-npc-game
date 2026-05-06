@@ -24,16 +24,17 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 include(${GFXF_ROOT_DIR}/infra/utils.cmake)
 custom_set_build_type()
 
-# Fetch ImGui
+# Fetch ImGui library
 include(FetchContent)
 FetchContent_Declare(
     imgui
     GIT_REPOSITORY https://github.com/ocornut/imgui.git
     GIT_TAG        v1.91.5
+    # Fetch only latest commit, not all git history (faster clone)
     GIT_SHALLOW    TRUE
 )
 FetchContent_MakeAvailable(imgui)
-
+    
 set(IMGUI_SOURCES
     ${imgui_SOURCE_DIR}/imgui.cpp
     ${imgui_SOURCE_DIR}/imgui_draw.cpp
@@ -43,6 +44,24 @@ set(IMGUI_SOURCES
     ${imgui_SOURCE_DIR}/backends/imgui_impl_glfw.cpp
     ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3.cpp
 )
+
+# Fetch HTTP library
+FetchContent_Declare(
+    cpp-httplib
+    GIT_REPOSITORY https://github.com/yhirose/cpp-httplib
+    GIT_TAG v0.43.3
+    GIT_SHALLOW TRUE
+)
+FetchContent_MakeAvailable(cpp-httplib)
+
+# Fetch JSON library
+FetchContent_Declare(
+    json
+    GIT_REPOSITORY https://github.com/nlohmann/json
+    GIT_TAG v3.12.0
+    GIT_SHALLOW TRUE
+)
+FetchContent_MakeAvailable(json)
 
 # Fix to hide a bug in CMake. Hopefully able to be removed in the future.
 set(CMAKE_POLICY_DEFAULT_CMP0012 NEW)
@@ -179,6 +198,8 @@ custom_add_executable(${target_name}
 target_include_directories(${target_name} PRIVATE
     ${imgui_SOURCE_DIR}
     ${imgui_SOURCE_DIR}/backends
+    ${httplib_SOURCE_DIR}
+    ${json_SOURCE_DIR}/single_include
 )
 
 # Detect architecture
@@ -213,6 +234,7 @@ endif()
 # Link third-party libraries
 target_link_libraries(${target_name} PRIVATE
     ${OPENGL_LIBRARIES}
+    nlohmann_json::nlohmann_json
 )
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
