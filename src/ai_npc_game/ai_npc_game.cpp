@@ -20,7 +20,8 @@ namespace ai_npc {
         return "<unknown>";
     })),
     spawnTimer(3.0f), // first NPC spawns after 3 seconds
-    moveTimer(2.0f)   // first NPC moves after 2 seconds
+    moveTimer(2.0f),  // first NPC moves after 2 seconds
+    llm(LLMClient())
     {}
 
 
@@ -190,6 +191,18 @@ namespace ai_npc {
                     }
                 }
             }
+        }
+
+        if (key == GLFW_KEY_F9) {
+            LLMRequest request;
+            request.messages = {
+                {"system", "You are a friendly NPC. Reply in one short sentence."},
+                {"user",   "Vreau sa fac o ferma de capre!"}
+            };
+            spdlog::info("Sending LLM request...");
+            LLMResponse resp = llm.doRequest(std::move(request));
+            if (resp.ok) spdlog::info("LLM reply: {}", resp.message);
+            else         spdlog::error("LLM error: {}", resp.error);
         }
     }
 

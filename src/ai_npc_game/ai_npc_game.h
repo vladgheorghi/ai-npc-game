@@ -14,6 +14,8 @@
 #include "ai_npc_game/hud/chat.h"
 #include "ai_npc_game/llm/llm_client.h"
 
+#include <spdlog/spdlog.h>
+
 
 namespace ai_npc
 {
@@ -66,5 +68,8 @@ namespace ai_npc
         // Timers
         float spawnTimer;        // seconds until next spawn attempt
         float moveTimer;       // seconds until next wander roll
+
+        // Ollama client
+        LLMClient llm;
     };
 }   // namespace ai_npc
