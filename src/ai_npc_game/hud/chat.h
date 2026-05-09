@@ -7,6 +7,8 @@
 
 #include "imgui.h"
 
+#include "ai_npc_game/llm/llm_client.h"
+
 namespace ai_npc {
     struct Message {
         uint32_t senderId;
@@ -29,16 +31,21 @@ namespace ai_npc {
         public:
             // Resolve character/NPC's IDs to names
             using NameResolver = std::function<std::string(uint32_t)>;
-            Chat(NameResolver resolver);
-            void showChat(const std::set<uint32_t>& ids, uint32_t playerId);
+            Chat(NameResolver resolver, LLMClient* llm, uint32_t playerId);
+            void showChat(uint32_t npcId);
             Conversation* getConversation(const std::set<uint32_t>& ids);
+            void updateConversation(LLMResponse response);
 
         public:
             bool show;
             bool focusInput;
         private:
+            LLMRequest createLLMRequest(Conversation* conversation);
+
             NameResolver resolver;
             char playerInput[256];
             std::unordered_map<std::string, Conversation> conversations;
+            LLMClient* llm;
+            uint32_t playerId;
     };
 }

@@ -10,6 +10,8 @@ namespace ai_npc {
     skinningShader(new Shader("Skinning")),
     player(std::make_unique<Character>(glm::vec3(0))),
     camera(std::make_unique<Camera>()),
+    spawnTimer(3.0f), // first NPC spawns after 3 seconds
+    moveTimer(2.0f),  // first NPC moves after 2 seconds
     imguiLayer(std::make_unique<gfxc::ImGuiLayer>()),
     // Create Chat instance with a resolver lambda function that resolves IDs to names for Character and NPC objects
     // [this] makes Chat have access to the game instance to access `player` and `npcs` fields
@@ -18,10 +20,7 @@ namespace ai_npc {
         for (auto& [_, npc] : npcs)
         if (npc->getId() == id) return npc->getName();
         return "<unknown>";
-    })),
-    spawnTimer(3.0f), // first NPC spawns after 3 seconds
-    moveTimer(2.0f),  // first NPC moves after 2 seconds
-    llm(LLMClient())
+    }, &llm, player->getId()))
     {}
 
 
@@ -73,6 +72,17 @@ namespace ai_npc {
 
     void Game::Update(float deltaTimeSeconds)
     {
+        LLMResponse resp;
+        while (llm.poll(resp)) {
+            if (resp.ok) {
+                spdlog::info("LLM[{}]: {}", resp.id, resp.message);
+                chat.get()->updateConversation(resp);
+            }
+            else {
+                spdlog::error("LLM[{}] err: {}", resp.id, resp.error);
+            }
+        }
+
         ClearScreen();
         
         renderPlayer();
@@ -194,15 +204,13 @@ namespace ai_npc {
         }
 
         if (key == GLFW_KEY_F9) {
-            LLMRequest request;
-            request.messages = {
+            LLMRequest req;
+            req.messages = {
                 {"system", "You are a friendly NPC. Reply in one short sentence."},
-                {"user",   "Vreau sa fac o ferma de capre!"}
+                {"user",   "Say hello to the player."}
             };
-            spdlog::info("Sending LLM request...");
-            LLMResponse resp = llm.doRequest(std::move(request));
-            if (resp.ok) spdlog::info("LLM reply: {}", resp.message);
-            else         spdlog::error("LLM error: {}", resp.error);
+            uint64_t id = llm.submit(std::move(req));
+            spdlog::info("F9: submitted request id={}", id);
         }
     }
 

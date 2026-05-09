@@ -61,15 +61,15 @@ namespace ai_npc
         std::unique_ptr<Character> player;
         std::unique_ptr<Camera> camera;
         
-        // HUD and chat logic
-        std::unique_ptr<gfxc::ImGuiLayer> imguiLayer;
-        std::unique_ptr<Chat> chat;
-
         // Timers
         float spawnTimer;        // seconds until next spawn attempt
         float moveTimer;       // seconds until next wander roll
-
+        
         // Ollama client
         LLMClient llm;
+        
+        // HUD and chat logic
+        std::unique_ptr<gfxc::ImGuiLayer> imguiLayer;
+        std::unique_ptr<Chat> chat;
     };
 }   // namespace ai_npc

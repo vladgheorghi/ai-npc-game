@@ -5,8 +5,64 @@
 
 namespace ai_npc {
     LLMClient::LLMClient(std::string host, int port, std::string model) :
-    host(std::move(host)), port(port), model(std::move(model)) {}
+    host(std::move(host)), port(port), model(std::move(model)) {
+        // Create worker thread and pass its dedicated method and args
+        worker = std::thread(&LLMClient::workerLoop, this);
+    }
 
+    LLMClient::~LLMClient() {
+        {
+            std::lock_guard<std::mutex> lock(reqMu);
+            stop = true;
+        }
+        reqCv.notify_all();
+        if (worker.joinable()) worker.join();
+    }
+
+    uint64_t LLMClient::submit(LLMRequest req) {
+        req.id = nextId.fetch_add(1);
+        const uint64_t id = req.id;
+
+        {
+            std::lock_guard<std::mutex> lock(reqMu);
+            reqQ.push(std::move(req));
+        }
+        reqCv.notify_one();
+
+        return id;
+    }
+
+    bool LLMClient::poll(LLMResponse& out) {
+        std::lock_guard<std::mutex> lock(respMu);
+
+        if (respQ.empty())
+            return false;
+
+        out = std::move(respQ.front());
+        respQ.pop();
+
+        return true;
+    }
+
+    void LLMClient::workerLoop() {
+        while (true) {
+            LLMRequest req;
+            {
+                std::unique_lock<std::mutex> lock(reqMu);
+                reqCv.wait(lock, [this] { return stop || !reqQ.empty(); });
+                if (stop && reqQ.empty()) return;
+                req = std::move(reqQ.front());
+                reqQ.pop();
+            }
+
+            LLMResponse resp = doRequest(req);
+
+            {
+                std::lock_guard<std::mutex> lock(respMu);
+                respQ.push(std::move(resp));
+            }
+        }
+    }
 
     LLMResponse LLMClient::doRequest(LLMRequest request) {
         LLMResponse response;

@@ -35,7 +35,7 @@ namespace ai_npc {
         // Show chat if Enter is pressed 
         if (chat->show && player->isTalking()) {
             Character* partner = player->getTalkingTo();
-            chat->showChat({ player->getId(), partner->getId() }, player->getId());
+            chat->showChat(partner->getId());
         }
 
         // Stop talking if chat is closed
